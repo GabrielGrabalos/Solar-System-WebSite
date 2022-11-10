@@ -64,16 +64,7 @@ window.onload = function () {
 
     let time = 0;
 
-
-
-
-
-
-
-
-
-
-
+    // ==================================================================================================== //
 
     // Canvas setup:
 
@@ -94,7 +85,6 @@ window.onload = function () {
     const maxZoom = 5;
 
     centerCamera();
-
 
 
     // Gets the center of the wolrd:
@@ -145,6 +135,7 @@ window.onload = function () {
             screenElements[i].y = -screenElements[i].distance * Math.sin((screenElements[i].velocity * time) / screenElements[i].distance);
         }
 
+        // Focuses camera on the last planet:
         //offsetX = screenElements[length - 1].x - canvasWidth / 2;
         //offsetY = screenElements[length - 1].y - canvasHeight / 2;
 
