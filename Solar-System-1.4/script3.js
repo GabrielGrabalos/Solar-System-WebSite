@@ -63,12 +63,12 @@ window.onload = function () {
 
 
     const screenElements = [ // Represents the screen elements that are moving.
-        new Planet(1000 / 2, 157.97, 20, "#e09f3e"),
-        new Planet(1750 / 2, 224.7, 18, "#ca6702"),
-        new Planet(2500 / 2, 365.26, 30, "#0a9396"),
-        new Planet(3250 / 2, 686.67, 15, "#9b2226"),
-        new Planet(4000 / 2, 4333, 15, "#99582a"),
-        new Planet(4750 / 2, 10759, 15, "#fec89a"),
+        new Planet(1000 / 2, 157.97 * 2, 20, "#e09f3e"),
+        new Planet(1750 / 2, 224.7 * 2, 18, "#ca6702"),
+        new Planet(2500 / 2, 365.26 * 2, 30, "#0a9396"),
+        new Planet(3250 / 2, 686.67 * 2, 15, "#9b2226"),
+        new Planet(4000 / 2, 4333, 150, "#99582a"),
+        new Planet(4750 / 2, 10759, 150, "#fec89a"),
         new Planet(5500 / 2, 30687, 15, "#118ab2"),
         new Planet(6250 / 2, 45190, 24, "#073b4c"),
     ];
@@ -97,13 +97,21 @@ window.onload = function () {
     let offsetX = 0;
     let offsetY = 0;
 
+    let oldOffsetX = 0;
+    let oldOffsetY = 0;
+    let oldScaleX = 0;
+    let oldScaleY = 0;
+    let doOldOffsets = false;
+
+    let updateOldOffsets = true;
+
     const maxX = canvasWidth;
     const maxY = canvasHeight;
 
-    const worldWidth = 400;
-    const worldHeight = 400;
+    const worldWidth = 12800 * 3 / 2;
+    const worldHeight = 7200 * 3 / 2;
 
-    const minZoom = 0.125;
+    const minZoom = 0.125 * 2 / 3;
     const maxZoom = 5;
 
     let click = true;
@@ -134,10 +142,45 @@ window.onload = function () {
 
     // ==================================================================================================== //
 
-    function draw() {
 
-        context.fillStyle = "#000000";
-        context.fillRect(0, 0, canvasWidth, canvasHeight);
+    const background = document.getElementById("stars");
+
+    function drawBackground() {
+        context.drawImage(background,
+            worldToScreenX(- worldWidth / 2),
+            worldToScreenY(- worldHeight / 2),
+            worldWidth * scaleX,
+            worldHeight * scaleY);
+    }
+
+    function drawBoundaries() {
+        context.lineWidth = 10 * scaleX;
+
+        context.beginPath();
+        context.moveTo(worldToScreenX(0 - worldWidth / 2), worldToScreenY(0 - worldHeight / 2));
+        context.lineTo(worldToScreenX(worldWidth - worldWidth / 2), worldToScreenY(0 - worldHeight / 2));
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(worldToScreenX(0 - worldWidth / 2), worldToScreenY(0 - worldHeight / 2));
+        context.lineTo(worldToScreenX(0 - worldWidth / 2), worldToScreenY(worldHeight - worldHeight / 2));
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(worldToScreenX(worldWidth - worldWidth / 2), worldToScreenY(0 - worldHeight / 2));
+        context.lineTo(worldToScreenX(worldWidth - worldWidth / 2), worldToScreenY(worldHeight - worldHeight / 2));
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(worldToScreenX(0 - worldWidth / 2), worldToScreenY(worldHeight - worldHeight / 2));
+        context.lineTo(worldToScreenX(worldWidth - worldWidth / 2), worldToScreenY(worldHeight - worldHeight / 2));
+        context.stroke();
+    }
+
+    function draw() {
+        drawBackground();
+
+        drawBoundaries();
 
         for (let i = 0; i < length; i++) {
             screenElements[i].drawOrbit();
@@ -178,8 +221,8 @@ window.onload = function () {
     animate();
 
     function focusOnCamera(i) {
-        offsetX = (screenElements[i].x - canvasWidth / 2) + (canvasWidth / 2) / scaleX;
-        offsetY = (screenElements[i].y - canvasHeight / 2) + (canvasHeight / 2) / scaleY;
+        offsetX = screenElements[i].x - (canvasWidth / 2) / scaleX;
+        offsetY = screenElements[i].y - (canvasHeight / 2) / scaleY;
     }
 
     function unfocusCamera() {
@@ -189,9 +232,6 @@ window.onload = function () {
     }
 
     // ==================================================================================================== //
-
-
-
 
     // Pan zoom:
 
@@ -205,12 +245,12 @@ window.onload = function () {
 
 
     //Restricts offset:
-    /*function restrictOffset() {
-        offsetX = Math.min(-offsetX, /*worldToScreenX(worldWidth) / scaleX);
-        offsetX = Math.max(-offsetX, /*worldToScreenX(-worldWidth) / scaleX);
-        offsetY = Math.min(-offsetY, /*worldToScreenY(worldHeight) / scaleY);
-        offsetY = Math.max(-offsetY, /*worldToScreenY(-worldHeight) / scaleY);
-    }*/
+    function restrictOffset() {
+        if (offsetX < -worldWidth / 2) offsetX = -worldWidth / 2;
+        if (offsetY < -worldHeight / 2) offsetY = -worldHeight / 2;
+        if (offsetX > worldWidth / 2 - canvasWidth / scaleX) offsetX = worldWidth / 2 - canvasWidth / scaleX;
+        if (offsetY > worldHeight / 2 - canvasHeight / scaleY) offsetY = worldHeight / 2 - canvasHeight / scaleY;
+    }
 
 
     function getCursorPosition(event) {
@@ -243,21 +283,23 @@ window.onload = function () {
                 unfocusCamera();
             };
 
+            if (doOldOffsets) doOldOffsets = false;
+
             dragEnd = {
                 x: event.pageX - canvas.offsetLeft,
                 y: event.pageY - canvas.offsetTop,
             };
-
             clear();
 
             offsetX -= (dragEnd.x - dragStart.x) / scaleX;
             offsetY -= (dragEnd.y - dragStart.y) / scaleY;
 
-            //restrictOffset();
+            restrictOffset();
 
             dragStart = dragEnd;
 
             draw();
+
         }
         else {
             // Checks if the mouse is hovering a planet or it's orbit:
@@ -295,6 +337,8 @@ window.onload = function () {
             unfocusCamera();
         };
 
+        if (doOldOffsets) doOldOffsets = false;
+
         const mousePos = getCursorPosition(event);
 
         const mouseBeforeZoomX = screenToWorldX(mousePos.x);
@@ -314,30 +358,72 @@ window.onload = function () {
         offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
         offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
 
-        //restrictOffset();
+        restrictOffset();
 
         clear();
 
         draw();
     });
 
-    this.canvas.addEventListener('click', function (event) {
+    this.canvas.addEventListener('click', clickFunc)
+
+    function clickFunc(event) {
         if (click) {
             if (planetToBeSelected != -1) {
+                doOldOffsets = true;
 
-                if (focusCamera) {
-                    unfocusCamera();
-                };
-
+                let oldSelectedPlanet = selectedPlanet;
                 selectedPlanet = planetToBeSelected;
-                scaleX = 2;
-                scaleY = 2;
 
-                focusCamera = true;
+
+                if (oldSelectedPlanet != selectedPlanet) {
+                    if (updateOldOffsets) {
+                        oldOffsetX = offsetX;
+                        oldOffsetY = offsetY;
+                        oldScaleX = scaleX;
+                        oldScaleY = scaleY;
+
+                        updateOldOffsets = false;
+                    }
+
+                    scaleX = 2 / (screenElements[selectedPlanet].radius / 50);
+                    scaleY = 2 / (screenElements[selectedPlanet].radius / 50);
+
+                    focusCamera = true;
+                }
+                else if (focusCamera) {
+                    unfocusCamera();
+                    oldSelectedPlanet = -1;
+                }
+
+
+                // Animates camera to the selected planet (Prototype):
+                /*for (let i = 0; i < 100; i++) {
+                    setTimeout(function () {
+                        offsetX -= offsetX / ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) / 100 * i);
+                        offsetY -= offsetY / ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) / 100 * i);
+
+                        scaleX = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
+                        scaleY = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
+                    }, 1000 / 30 * i);
+                }*/
+
+
             }
             else {
                 focusCamera = false;
+
+                if (doOldOffsets) {
+                    scaleX = oldScaleX;
+                    scaleY = oldScaleY;
+                    offsetX = oldOffsetX;
+                    offsetY = oldOffsetY;
+                }
+
+                selectedPlanet = -1;
+
+                updateOldOffsets = true;
             }
         }
-    })
+    }
 }
