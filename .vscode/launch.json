@@ -8,7 +8,7 @@
             "type": "msedge",
             "request": "launch",
             "name": "Open index.html",
-            "file": "c:\\Users\\SAMSUNG\\OneDrive\\Diversos\\Área de Trabalho\\Solar-System-WebSite\\Solar-System-1.4\\index.html"
+            "file": "c:\\Users\\SAMSUNG\\OneDrive\\Diversos\\Área de Trabalho\\Solar-System-WebSite\\src\\index.html"
         }
     ]
 }
