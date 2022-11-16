@@ -1,6 +1,6 @@
 window.onload = function () {
 
-    // ================== 1.6 ================== //
+    // ================== 1.7 ================== //
 
     // ==================================================================================================== //
 
@@ -98,6 +98,9 @@ window.onload = function () {
     let planetToBeSelected = -1; // Planet that the mouse is hovering over.
     let selectedPlanet = -1; // Planet that is selected (clicked).
 
+    let sunToBeSelected = false; // If the mouse is hovering over the sun.
+    let sunSelected = false; // If the sun is selected (clicked).
+
     let focusCamera = false; // Should the camera focus on the selected planet?
 
     let time = 0; // Used to calculate the position of the planets.
@@ -134,7 +137,7 @@ window.onload = function () {
     const worldHeight = 7200 * 3 / 2;
 
     const minZoom = 0.125 * 2 / 3;
-    const maxZoom = 5;
+    const maxZoom = 3;
 
     let click = true; // Used to prevent clicking when dragging the camera.
 
@@ -159,6 +162,36 @@ window.onload = function () {
     function unfocusCamera() {
         focusCamera = false;
         selectedPlanet = -1;
+    }
+
+    function animateIN(i) {
+        offsetX = anOffsetX + ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) - anOffsetX) / 100 * i;
+        offsetY = anOffsetY + ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) - anOffsetY) / 100 * i;
+
+        /*/ Zoom (Prototype):
+
+        // Mouse before zoom:
+        const mouseBeforeZoomX = offsetX + canvasWidth / scaleX;
+        const mouseBeforeZoomY = offsetY + canvasHeight / scaleY;
+
+        scaleX = anScaleX - (((2 / screenElements[selectedPlanet].radius / 50) - anScaleX)) / 100 * i;
+        scaleY = anScaleY - (((2 / screenElements[selectedPlanet].radius / 50) - anScaleY)) / 100 * i;
+
+        // Mouse after zoom:
+        const mouseAfterZoomX = offsetX + canvasWidth / scaleX;
+        const mouseAfterZoomY = offsetY + canvasHeight / scaleY;
+
+
+        // Adjusts offset so the zoom occurs relative to the center of the screen:
+        offsetX += (mouseBeforeZoomX - mouseAfterZoomX) / 2;
+        offsetY += (mouseBeforeZoomY - mouseAfterZoomY) / 2;
+
+        restrictOffset();*/
+
+        if (i == 100) {
+            focusCamera = true;
+            bAnimateIn = false;
+        }
     }
 
     function restrictOffset() {
@@ -191,8 +224,27 @@ window.onload = function () {
             worldHeight * scaleY);
     }
 
+    function drawSun() {
+        context.beginPath();
+
+        context.arc(worldToScreenX(0), worldToScreenY(0), 250 * scaleX, 0, Math.PI * 2, false);
+
+        context.fillStyle = "yellow";
+
+        context.fill();
+
+        // If the sun is to be selected, draw a circle around it:
+        if (sunToBeSelected) {
+            context.strokeStyle = "white";
+            context.lineWidth = 8 * scaleX;
+            context.stroke();
+        }
+    }
+
     function draw() {
         drawBackground();
+
+        drawSun();
 
         // Draw the orbits:
         for (let i = 0; i < length; i++) {
@@ -213,14 +265,32 @@ window.onload = function () {
 
     // Animation functions:
 
+    // ---------------------------- //
+
+    // Related variables:
+
+    let anInStart = 0; // Time that the animation started.
+    let bAnimateIn = false; // Should the camera animate in?
+    let bAnimateOut = false; // Should the camera animate out?
+
+    let anOffsetX = 0; // Offset X of the animation (start).
+    let anOffsetY = 0; // Offset Y of the animation (start).
+    let anScaleX = 0; // Scale X of the animation (start).
+    let anScaleY = 0; // Scale Y of the animation (start).
+
+    // ---------------------------- //
+
     function animate() {
         clear();
         draw();
 
         updateCoordinates();
 
+        if (bAnimateIn) {
+            animateIN(time - anInStart);
+        }
         // Focuses camera on the selected planet:
-        if (focusCamera) {
+        else if (focusCamera) {
             focusOnCamera(selectedPlanet);
         }
 
@@ -345,10 +415,11 @@ window.onload = function () {
             }
             // ---------------------------- //
 
+            const distance = Math.sqrt(Math.pow(worldCursor.x, 2) + Math.pow(worldCursor.y, 2));
+
             // Checks if the mouse is hovering a planet:
             for (let i = 0; i < length; i++) {
                 const planet = screenElements[i];
-                const distance = Math.sqrt(Math.pow(worldCursor.x, 2) + Math.pow(worldCursor.y, 2));
 
                 if (distance < planet.distance + planet.radius &&
                     distance > planet.distance - planet.radius) {
@@ -358,10 +429,22 @@ window.onload = function () {
 
                     return; // Stops the function.
                 }
-
-                canvas.style.cursor = "default"; // Changes the cursor to the default.
-                planetToBeSelected = -1; // Resets the planet to be selected.
             }
+
+            if (distance <= 250) {
+                canvas.style.cursor = "pointer"; // Changes the cursor to a pointer.
+                planetToBeSelected = -1; // Resets the planet to be selected.
+
+                sunToBeSelected = true;
+
+                return; // Stops the function.
+            }
+            else if (sunToBeSelected) {
+                sunToBeSelected = false;
+            }
+
+            canvas.style.cursor = "default"; // Changes the cursor to the default.
+            planetToBeSelected = -1; // Resets the planet to be selected.
         }
     })
 
@@ -403,7 +486,6 @@ window.onload = function () {
         offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
         offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
 
-
         restrictOffset();
 
         // Draw:
@@ -414,7 +496,7 @@ window.onload = function () {
     this.canvas.addEventListener('click', clickFunc)
 
     function clickFunc(event) {
-        if (click) {
+        if (click && !bAnimateIn) {
             if (planetToBeSelected != -1) { // If the mouse is hovering a planet.
                 doOldOffsets = true;
 
@@ -438,51 +520,15 @@ window.onload = function () {
                     scaleX = 2 / (screenElements[selectedPlanet].radius / 25);
                     scaleY = 2 / (screenElements[selectedPlanet].radius / 25);
 
-                    focusCamera = true;
+                    //focusCamera = true;
 
-                    // =================================================== //
-                    // Animation tests and prototypes:
-                    /*let i = 0;
+                    bAnimateIn = true;
 
-                    animateCamera();
-
-                    function animateCamera() {
-                        offsetX -= offsetX / ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) / 100 * i);
-                        offsetY -= offsetY / ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) / 100 * i);
-
-                        scaleX = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
-                        scaleY = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
-
-                        clear();
-                        draw();
-
-                        i++;
-
-                        if (i < 100)
-                            requestAnimationFrame(animateCamera);
-                        else
-                            requestAnimationFrame(animate);
-                    }*/
-
-                    // Animates camera to the selected planet (Prototype):
-                    /*for (let i = 0; i < 100; i++) {
-                        setTimeout(function () {
-                            offsetX -= offsetX / ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) / 100 * i);
-                            offsetY -= offsetY / ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) / 100 * i);
-
-                            scaleX = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
-                            scaleY = (2 / (screenElements[selectedPlanet].radius / 50)) / 100 * i;
-
-                            clear();
-                            draw();
-
-                            if (i == 99) {
-                                focusCamera = true;
-                            }
-                        }, 1000 / 30 * i);
-                    }*/
-
-                    // =================================================== //
+                    anInStart = time;
+                    anOffsetX = offsetX;
+                    anOffsetY = offsetY;
+                    anScaleX = scaleX;
+                    anScaleY = scaleY;
                 }
 
                 // Deselects the planet:
@@ -490,6 +536,27 @@ window.onload = function () {
                     unfocusCamera();
                     oldSelectedPlanet = -1;
                 }
+            }
+
+            else if (sunToBeSelected) {
+                doOldOffsets = true;
+                sunSelected = true;
+
+                // Saves the old offsets (for when the camera is unfocused | will be used for animation):
+                if (updateOldOffsets) {
+                    oldOffsetX = offsetX;
+                    oldOffsetY = offsetY;
+                    oldScaleX = scaleX;
+                    oldScaleY = scaleY;
+
+                    updateOldOffsets = false;
+                }
+
+                // Changes the scale so the sun (when focused) have a constant screen size:
+                scaleX = scaleY = 2 / (250 /* <- Sun Radius */ / 25);
+
+                offsetX = -canvasWidth / 2 / scaleX;
+                offsetY = -canvasHeight / 2 / scaleY;
             }
             // Unfocuses on the selected planet (resets):
             else {
