@@ -1,6 +1,6 @@
 window.onload = function () {
 
-    // ================== 1.7 ================== //
+    // ================== 1.8 ================== //
 
     // ==================================================================================================== //
 
@@ -168,14 +168,14 @@ window.onload = function () {
         offsetX = anOffsetX + ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) - anOffsetX) / 100 * i;
         offsetY = anOffsetY + ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) - anOffsetY) / 100 * i;
 
-        /*/ Zoom (Prototype):
+        //Zoom (Prototype):
 
         // Mouse before zoom:
         const mouseBeforeZoomX = offsetX + canvasWidth / scaleX;
         const mouseBeforeZoomY = offsetY + canvasHeight / scaleY;
 
-        scaleX = anScaleX - (((2 / screenElements[selectedPlanet].radius / 50) - anScaleX)) / 100 * i;
-        scaleY = anScaleY - (((2 / screenElements[selectedPlanet].radius / 50) - anScaleY)) / 100 * i;
+        scaleX += ((50 / screenElements[selectedPlanet].radius) - anScaleX) / 100;
+        scaleY += ((50 / screenElements[selectedPlanet].radius) - anScaleY) / 100;
 
         // Mouse after zoom:
         const mouseAfterZoomX = offsetX + canvasWidth / scaleX;
@@ -183,14 +183,14 @@ window.onload = function () {
 
 
         // Adjusts offset so the zoom occurs relative to the center of the screen:
-        offsetX += (mouseBeforeZoomX - mouseAfterZoomX) / 2;
-        offsetY += (mouseBeforeZoomY - mouseAfterZoomY) / 2;
+        offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
+        offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
 
-        restrictOffset();*/
+        restrictOffset();
 
         if (i == 100) {
             focusCamera = true;
-            bAnimateIn = false;
+            bAnimate = false;
         }
     }
 
@@ -270,8 +270,7 @@ window.onload = function () {
     // Related variables:
 
     let anInStart = 0; // Time that the animation started.
-    let bAnimateIn = false; // Should the camera animate in?
-    let bAnimateOut = false; // Should the camera animate out?
+    let bAnimate = false; // Should the camera animate in?
 
     let anOffsetX = 0; // Offset X of the animation (start).
     let anOffsetY = 0; // Offset Y of the animation (start).
@@ -286,9 +285,10 @@ window.onload = function () {
 
         updateCoordinates();
 
-        if (bAnimateIn) {
-            animateIN(time - anInStart);
+        if (bAnimate) {
+            animateIN(time - anInStart - 1);
         }
+
         // Focuses camera on the selected planet:
         else if (focusCamera) {
             focusOnCamera(selectedPlanet);
@@ -379,6 +379,11 @@ window.onload = function () {
             if (focusCamera) unfocusCamera();
 
             if (doOldOffsets) doOldOffsets = false;
+
+            if (bAnimate) {
+                bAnimate = false;
+                selectedPlanet = -1;
+            }
             // ---------------------------- //
 
             // Gets drag end:
@@ -458,6 +463,11 @@ window.onload = function () {
         if (focusCamera) unfocusCamera();
 
         if (doOldOffsets) doOldOffsets = false;
+
+        if (bAnimate) {
+            bAnimate = false;
+            selectedPlanet = -1; 
+        }
         // ---------------------------- //
 
         // Gets the cursor position:
@@ -496,7 +506,7 @@ window.onload = function () {
     this.canvas.addEventListener('click', clickFunc)
 
     function clickFunc(event) {
-        if (click && !bAnimateIn) {
+        if (click && !bAnimate) {
             if (planetToBeSelected != -1) { // If the mouse is hovering a planet.
                 doOldOffsets = true;
 
@@ -516,13 +526,9 @@ window.onload = function () {
                         updateOldOffsets = false;
                     }
 
-                    // Changes the scale so the planet (when focused) have a constant screen size:
-                    scaleX = 2 / (screenElements[selectedPlanet].radius / 25);
-                    scaleY = 2 / (screenElements[selectedPlanet].radius / 25);
-
                     //focusCamera = true;
 
-                    bAnimateIn = true;
+                    bAnimate = true;
 
                     anInStart = time;
                     anOffsetX = offsetX;
