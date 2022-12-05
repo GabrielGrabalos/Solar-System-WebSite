@@ -1,6 +1,6 @@
 window.onload = function () {
 
-    // ================== 1.8 ================== //
+    // ================== 1.9 ================== //
 
     // ==================================================================================================== //
 
@@ -98,6 +98,8 @@ window.onload = function () {
     let planetToBeSelected = -1; // Planet that the mouse is hovering over.
     let selectedPlanet = -1; // Planet that is selected (clicked).
 
+    let planetWindow = false; // If the planet window is open.
+
     let sunToBeSelected = false; // If the mouse is hovering over the sun.
     let sunSelected = false; // If the sun is selected (clicked).
 
@@ -162,9 +164,34 @@ window.onload = function () {
     function unfocusCamera() {
         focusCamera = false;
         selectedPlanet = -1;
+
+        console.log("unfocus");
     }
 
     function animateIN(i) {
+        /*const initialPointA = { x: screenElements[i].x, y: screenElements[i].y };
+        const initialPointB = { x: 0, y: 0 };
+
+        const finalPointA = { x: 0, y: 0 };
+        const finalPointB = { x: screenElements[i].x, y: screenElements[i].y };
+
+
+        const intersectingPoint = findIntersectingPoint(initialPointA.x, initialPointA.y,
+            finalPointA.x, finalPointA.y,
+            initialPointB.x, initialPointB.y,
+            finalPointB.x, finalPointB.y);
+
+        const pointBeforeZoom = { x: worldToScreenX(intersectingPoint.x), y: worldToScreenY(intersectingPoint.y) };
+
+        scaleX += ((50 / screenElements[selectedPlanet].radius) - anScaleX) / 100;
+        scaleY = scaleX;
+
+        const pointAfterZoom = { x: screenToWorldX(pointBeforeZoom.x), y: screenToWorldY(pointBeforeZoom.y) };
+
+        offsetX += pointAfterZoom.x - pointBeforeZoom.x;
+        offsetY += pointAfterZoom.y - pointBeforeZoom.y;*/
+
+
         offsetX = anOffsetX + ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) - anOffsetX) / 100 * i;
         offsetY = anOffsetY + ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) - anOffsetY) / 100 * i;
 
@@ -191,6 +218,32 @@ window.onload = function () {
         if (i == 100) {
             focusCamera = true;
             bAnimate = false;
+
+            console.log(selectedPlanet);
+        }
+    }
+
+    function findPoint(k, x1, y1, x2, y2) {
+
+        if (x1 === x2)
+            return undefined;
+
+        return (y1 - y2) * (k - x1) / (x1 - x2) + y1;
+    }
+
+    function findIntersectingPoint(x1, y1, x2, y2, a1, b1, a2, b2) {
+        const a = (y1 - y2) / (x1 - x2);
+        const b = y1 - x1 * (y1 - y2) / (x1 - x2);
+
+        const c = (b1 - b2) / (a1 - a2);
+        const d = b1 - a1 * (b1 - b2) / (a1 - a2);
+
+        const x = (d - b) / (a - c);
+
+        const y = findPoint(x, x1, y1, x2, y2);
+
+        return {
+            x, y
         }
     }
 
@@ -466,7 +519,7 @@ window.onload = function () {
 
         if (bAnimate) {
             bAnimate = false;
-            selectedPlanet = -1; 
+            selectedPlanet = -1;
         }
         // ---------------------------- //
 
