@@ -15,7 +15,7 @@ window.onload = function () {
         infos = []; // TODO (Will hold information about the planet, such as its name, mass, etc.).
 
 
-        constructor(distance, velocity, radius, color) {
+        constructor(distance, velocity, radius, color, name) {
 
             this.x = distance; // Distance from the sun.
             this.y = 0; // Inicial Y position.
@@ -26,12 +26,16 @@ window.onload = function () {
             this.distance = distance; // Distance from the sun (radius of the orbit).
 
             this.color = color; // Temporary.
+
+            this.name = name; // Name of the planet.
         }
 
         x;
         y;
 
         distance;
+
+        name;
 
         // Draw the planet:
         draw() {
@@ -70,7 +74,6 @@ window.onload = function () {
 
             context.stroke();
         }
-
     }
 
     // ---------------------------- //
@@ -79,17 +82,18 @@ window.onload = function () {
 
     const screenElements = [ // Represents the screen elements that are moving.
 
-        new Planet(1000 / 2, 157.97 * 2, 20, "#e09f3e"), // Mercury.
-        new Planet(1750 / 2, 224.7 * 2, 18, "#ca6702"),  // Venus.
-        new Planet(2500 / 2, 365.26 * 2, 30, "#0a9396"), // Earth.
-        new Planet(3250 / 2, 686.67 * 2, 15, "#9b2226"), // Mars.
-        new Planet(4000 / 2, 4333, 150, "#99582a"),      // Jupiter.
-        new Planet(4750 / 2, 10759, 150, "#fec89a"),     // Saturn.
-        new Planet(5500 / 2, 30687, 15, "#118ab2"),      // Uranus.
-        new Planet(6250 / 2, 45190, 24, "#073b4c"),      // Neptune.
+        new Planet(1000 / 2, 157.97 * 2, 20, "#e09f3e", "Mercúrio"), // Mercury.
+        new Planet(1750 / 2, 224.7 * 2, 18, "#ca6702", "Vênus"),     // Venus.
+        new Planet(2500 / 2, 365.26 * 2, 30, "#0a9396", "Terra"),    // Earth.
+        new Planet(3250 / 2, 686.67 * 2, 15, "#9b2226", "Marte"),    // Mars.
+        new Planet(4000 / 2, 4333, 150, "#99582a", "Júpiter"),       // Jupiter.
+        new Planet(4750 / 2, 10759, 150, "#fec89a", "Saturno"),      // Saturn.
+        new Planet(5500 / 2, 30687, 15, "#118ab2", "Urano"),         // Uranus.
+        new Planet(6250 / 2, 45190, 24, "#073b4c", "Netuno"),        // Neptune.
     ];
 
     const length = screenElements.length; // Number of planets.
+
 
     // ---------------------------- //
 
@@ -143,6 +147,7 @@ window.onload = function () {
 
     let click = true; // Used to prevent clicking when dragging the camera.
 
+
     // ==================================================================================================== //
 
     // Camera functions:
@@ -165,7 +170,8 @@ window.onload = function () {
         focusCamera = false;
         selectedPlanet = -1;
 
-        console.log("unfocus");
+        //console.log("unfocus");
+        document.getElementById("planetWindow").style.display = "none";
     }
 
     function animateIN(i) {
@@ -209,6 +215,7 @@ window.onload = function () {
         const mouseAfterZoomY = offsetY + canvasHeight / scaleY;
 
 
+        
         // Adjusts offset so the zoom occurs relative to the center of the screen:
         offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
         offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
@@ -219,7 +226,11 @@ window.onload = function () {
             focusCamera = true;
             bAnimate = false;
 
-            console.log(selectedPlanet);
+            //console.log(selectedPlanet);
+            //_selectedPlanet = selectedPlanet;
+
+            document.getElementById("planetName").innerHTML = screenElements[selectedPlanet].name;
+            document.getElementById("planetWindow").style.display = "flex";
         }
     }
 

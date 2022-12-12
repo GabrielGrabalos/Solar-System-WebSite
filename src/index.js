@@ -3,18 +3,13 @@ const express = require('express');
 const app = express();
 
 app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
 
 app.get('/', (req, res) => {
-    res.render('index.ejs', { nome: 'caju' });
+    res.render('index.ejs', { nome: "" });
 });
 
-app.get('/src/stars.jpg' , (req, res) => {
-    res.sendFile('stars.jpg', { root: __dirname });
-});
-
-app.get('/src/script3.js' , (req, res) => {
-    res.sendFile('script3.js', { root: __dirname });
-});
+app.use(express.static(__dirname + '/public'));
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
