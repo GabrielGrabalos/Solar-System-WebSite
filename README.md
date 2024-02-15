@@ -43,8 +43,12 @@ This project was created with love by Gabriel Grabalos 🌟.  Feel free to conta
 
 This project is licensed under the [MIT License](LICENSE) 📄.  Feel free to use, modify, and distribute the code for educational purposes 🚀.
 
-## Future feautures ☄️
+## Future Features ☄️
 
-I'm currently working on a 2024 update to better structure the code, files and overall enhance the application.  Once that's done, It'll be posted with GitHub Pages or some other more suitable service.
+- I'm currently working on a 2024 update to better structure the code, files, and overall enhance the application. Once that's done, it'll be posted on GitHub Pages or some other more suitable service.
 
-Thanks for the interest!
+- With time, I'll keep adding more and more details, so I'm planning to make this very easily scalable!
+
+## 💕 Thanks!
+
+Thanks for the interest! I hope to see you exploring a lot of our solar system!
