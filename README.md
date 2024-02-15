@@ -1,3 +1,11 @@
+## Fun Fact 🎉
+
+</br>
+
+This project holds a special place in my heart as it marks my first-ever full-stack project! 🥰 </br> It's been an exciting journey exploring the depths of space while diving into web development. </br></br> Here's to many more adventures ahead! 🍹
+
+</br>
+
 # 🌟 The Solar System Website 🚀
 
 Welcome to The Solar System Website ( _I still have to figure out a better name_ )!  🌌 Embark on an exciting journey through space and learn all about our fascinating solar system!  🪐 Get ready to blast off into a universe of fun and discovery! 🚀💫
@@ -13,10 +21,6 @@ Welcome to The Solar System Website ( _I still have to figure out a better name_
 - **Express.js**: A web application framework for Node.js 🚀.
 - **EJS**: Embedded JavaScript templates for dynamic web content 📄.
 - **MongoDB**: A NoSQL database for storing planet information 🛰️.
-
-## Fun Fact 🎉
-
-This project holds a special place in my heart as it marks my first-ever full-stack project! 🥰 It's been an exciting journey exploring the depths of space while diving into web development. Here's to many more adventures ahead! 🍹
 
 ## Getting Started 🚀
 
