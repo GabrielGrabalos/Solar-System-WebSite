@@ -2,10 +2,10 @@
   "name": "solar-system-website",
   "version": "1.9.0",
   "description": "School project for teatching kids about the solar system",
-  "main": "src/index.js",
+  "main": "public/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",

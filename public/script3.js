@@ -169,49 +169,7 @@ window.onload = function () {
     }
 
     function animateIN(i) {
-        /*const initialPointA = { x: screenElements[i].x, y: screenElements[i].y };
-        const initialPointB = { x: 0, y: 0 };
-
-        const finalPointA = { x: 0, y: 0 };
-        const finalPointB = { x: screenElements[i].x, y: screenElements[i].y };
-
-
-        const intersectingPoint = findIntersectingPoint(initialPointA.x, initialPointA.y,
-            finalPointA.x, finalPointA.y,
-            initialPointB.x, initialPointB.y,
-            finalPointB.x, finalPointB.y);
-
-        const pointBeforeZoom = { x: worldToScreenX(intersectingPoint.x), y: worldToScreenY(intersectingPoint.y) };
-
-        scaleX += ((50 / screenElements[selectedPlanet].radius) - anScaleX) / 100;
-        scaleY = scaleX;
-
-        const pointAfterZoom = { x: screenToWorldX(pointBeforeZoom.x), y: screenToWorldY(pointBeforeZoom.y) };
-
-        offsetX += pointAfterZoom.x - pointBeforeZoom.x;
-        offsetY += pointAfterZoom.y - pointBeforeZoom.y;*/
-
-
-        offsetX = anOffsetX + ((screenElements[selectedPlanet].x - (canvasWidth / 2) / scaleX) - anOffsetX) / 100 * i;
-        offsetY = anOffsetY + ((screenElements[selectedPlanet].y - (canvasHeight / 2) / scaleY) - anOffsetY) / 100 * i;
-
-        //Zoom (Prototype):
-
-        // Mouse before zoom:
-        const mouseBeforeZoomX = offsetX + canvasWidth / scaleX;
-        const mouseBeforeZoomY = offsetY + canvasHeight / scaleY;
-
-        scaleX += ((50 / screenElements[selectedPlanet].radius) - anScaleX) / 100;
-        scaleY += ((50 / screenElements[selectedPlanet].radius) - anScaleY) / 100;
-
-        // Mouse after zoom:
-        const mouseAfterZoomX = offsetX + canvasWidth / scaleX;
-        const mouseAfterZoomY = offsetY + canvasHeight / scaleY;
-
-
-        // Adjusts offset so the zoom occurs relative to the center of the screen:
-        offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
-        offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
+        mousewhell({ deltaY: -1, clientX: selectedPlanet.x, clientY: selectedPlanet.y});
 
         restrictOffset();
 
@@ -265,7 +223,8 @@ window.onload = function () {
 
     // Draw functions:
 
-    const background = document.getElementById("stars"); // Gets the background image.
+    const background = new Image();
+    background.src = "./stars.jpg";
 
     function drawBackground() {
         context.drawImage(background,
@@ -333,7 +292,6 @@ window.onload = function () {
     // ---------------------------- //
 
     function animate() {
-        clear();
         draw();
 
         updateCoordinates();
@@ -397,6 +355,36 @@ window.onload = function () {
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
         }
+    }
+
+    function mousewhell(event) {
+        // Gets the cursor position:
+        const mousePos = getCursorPosition(event);
+
+        // Mouse before zoom:
+        const mouseBeforeZoomX = screenToWorldX(mousePos.x);
+        const mouseBeforeZoomY = screenToWorldY(mousePos.y);
+
+
+        // Zooms in or out:
+        scaleX += event.deltaY * (- 0.001) * (scaleX / 2);
+        scaleY += event.deltaY * (- 0.001) * (scaleY / 2);
+
+        // Restrict zoom:
+        scaleX = Math.min(Math.max(minZoom, scaleX), maxZoom);
+        scaleY = Math.min(Math.max(minZoom, scaleY), maxZoom);
+
+
+        // Mouse after zoom:
+        const mouseAfterZoomX = screenToWorldX(mousePos.x);
+        const mouseAfterZoomY = screenToWorldY(mousePos.y);
+
+
+        // Adjusts offset so the zoom occurs relative to the mouse position:
+        offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
+        offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
+
+        restrictOffset();
     }
 
     // ==================================================================================================== //
@@ -523,33 +511,7 @@ window.onload = function () {
         }
         // ---------------------------- //
 
-        // Gets the cursor position:
-        const mousePos = getCursorPosition(event);
-
-        // Mouse before zoom:
-        const mouseBeforeZoomX = screenToWorldX(mousePos.x);
-        const mouseBeforeZoomY = screenToWorldY(mousePos.y);
-
-
-        // Zooms in or out:
-        scaleX += event.deltaY * (- 0.001) * (scaleX / 2);
-        scaleY += event.deltaY * (- 0.001) * (scaleY / 2);
-
-        // Restrict zoom:
-        scaleX = Math.min(Math.max(minZoom, scaleX), maxZoom);
-        scaleY = Math.min(Math.max(minZoom, scaleY), maxZoom);
-
-
-        // Mouse after zoom:
-        const mouseAfterZoomX = screenToWorldX(mousePos.x);
-        const mouseAfterZoomY = screenToWorldY(mousePos.y);
-
-
-        // Adjusts offset so the zoom occurs relative to the mouse position:
-        offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
-        offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
-
-        restrictOffset();
+        mousewhell(event);
 
         // Draw:
         clear();
