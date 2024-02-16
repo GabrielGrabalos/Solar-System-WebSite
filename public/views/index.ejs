@@ -14,9 +14,7 @@
         }
         body{
             background-color: #000;
-        }
-        img{
-            display:none ;
+            overflow: hidden;
         }
 
         #planetWindow{
@@ -36,14 +34,16 @@
 </head>
 
 <body>
-    <!-- <img src="../src/stars.jpg" alt="Solar System" id="stars"> -->
     <canvas id="canvas" width="400px" height="400px"></canvas>
     <!-- <div id="planetWindow">
         <h1 id="planetName"><% nome %></h1>
         <p id="planetInfo">asdasdasdasdads</p>
     </div> -->
-</body>
 
-<script src="../script3.js"></script>
+    <script src="../panzoom.js"></script>
+    <script src="../celestialBody.js"></script>
+    <script src="../planet.js"></script>
+    <script src="../script3.js"></script>
+</body>
 
 </html>

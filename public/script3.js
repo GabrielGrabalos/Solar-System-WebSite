@@ -1,445 +1,237 @@
-window.onload = function () {
+const pz = new PanZoom();
 
-    // ================== 1.9 ================== //
+const asters = [
+    new Planet(1000 / 2, 157.97 * 2, 20, "#e09f3e"), // Mercury.
+    new Planet(1750 / 2, 224.7 * 2, 18, "#ca6702"),  // Venus.
+    new Planet(2500 / 2, 365.26 * 2, 30, "#0a9396"), // Earth.
+    new Planet(3250 / 2, 686.67 * 2, 15, "#9b2226"), // Mars.
+    new Planet(4000 / 2, 4333, 150, "#99582a"),      // Jupiter.
+    new Planet(4750 / 2, 10759, 150, "#fec89a"),     // Saturn.
+    new Planet(5500 / 2, 30687, 15, "#118ab2"),      // Uranus.
+    new Planet(6250 / 2, 45190, 24, "#073b4c"),      // Neptune.
+];
 
-    // ==================================================================================================== //
+const amountOfAsters = asters.length; // Number of planets.
 
-    // Planets:
+// ---------------------------- //
 
-    // ---------------------------- //
+// Related variables:
 
-    // Planet class:
+let planetToBeSelected = -1; // Planet that the mouse is hovering over.
+let selectedPlanet = -1; // Planet that is selected (clicked).
 
-    
+let planetWindow = false; // If the planet window is open.
 
-    // ---------------------------- //
+let sunToBeSelected = false; // If the mouse is hovering over the sun.
+let sunSelected = false; // If the sun is selected (clicked).
 
-    // Array of planets:
+let focusCamera = false; // Should the camera focus on the selected planet?
 
-    const screenElements = [ // Represents the screen elements that are moving.
+let time = 0; // Used to calculate the position of the planets.
 
-        new Planet(1000 / 2, 157.97 * 2, 20, "#e09f3e"), // Mercury.
-        new Planet(1750 / 2, 224.7 * 2, 18, "#ca6702"),  // Venus.
-        new Planet(2500 / 2, 365.26 * 2, 30, "#0a9396"), // Earth.
-        new Planet(3250 / 2, 686.67 * 2, 15, "#9b2226"), // Mars.
-        new Planet(4000 / 2, 4333, 150, "#99582a"),      // Jupiter.
-        new Planet(4750 / 2, 10759, 150, "#fec89a"),     // Saturn.
-        new Planet(5500 / 2, 30687, 15, "#118ab2"),      // Uranus.
-        new Planet(6250 / 2, 45190, 24, "#073b4c"),      // Neptune.
-    ];
+// ---------------------------- //
 
-    const length = screenElements.length; // Number of planets.
+// ==================================================================================================== //
 
-    // ---------------------------- //
+// Canvas setup:
 
-    // Related variables:
+let canvas = document.getElementById("canvas");
+let context = canvas.getContext('2d');
 
-    let planetToBeSelected = -1; // Planet that the mouse is hovering over.
-    let selectedPlanet = -1; // Planet that is selected (clicked).
+const canvasWidth = canvas.width = window.innerWidth;
+const canvasHeight = canvas.height = window.innerHeight;
 
-    let planetWindow = false; // If the planet window is open.
+const maxX = canvasWidth;
+const maxY = canvasHeight;
 
-    let sunToBeSelected = false; // If the mouse is hovering over the sun.
-    let sunSelected = false; // If the sun is selected (clicked).
+const worldWidth = 12800 * 3 / 2;
+const worldHeight = 7200 * 3 / 2;
 
-    let focusCamera = false; // Should the camera focus on the selected planet?
+function restrictOffset() {
+    if (pz.OffsetX < -worldWidth / 2)
+        pz.OffsetX = -worldWidth / 2;
 
-    let time = 0; // Used to calculate the position of the planets.
+    if (pz.OffsetY < -worldHeight / 2)
+        pz.OffsetY = -worldHeight / 2;
 
-    // ---------------------------- //
+    if (pz.OffsetX > worldWidth / 2 - canvasWidth / scaleX)
+        pz.OffsetX = worldWidth / 2 - canvasWidth / scaleX;
 
-    // ==================================================================================================== //
+    if (pz.OffsetY > worldHeight / 2 - canvasHeight / scaleY)
+        pz.OffsetY = worldHeight / 2 - canvasHeight / scaleY;
+}
 
-    // Canvas setup:
+// ==================================================================================================== //
 
-    let canvas = document.getElementById("canvas");
-    let context = canvas.getContext('2d');
+// Draw functions:
 
-    const canvasWidth = canvas.width = window.innerWidth;
-    const canvasHeight = canvas.height = window.innerHeight - 4;
+const background = new Image();
+background.src = "./stars.jpg";
 
-    let scaleX = 0.5;
-    let scaleY = 0.5;
-    let offsetX = 0;
-    let offsetY = 0;
+function drawBackground() {
+    context.drawImage(
+        background,
 
-    let oldOffsetX = 0;
-    let oldOffsetY = 0;
-    let oldScaleX = 0;
-    let oldScaleY = 0;
-    let doOldOffsets = false;
+        worldToScreenX(- worldWidth / 2),
+        worldToScreenY(- worldHeight / 2),
 
-    let updateOldOffsets = true;
+        worldWidth * pz.Scale,
+        worldHeight * pz.Scale
+        );
+}
 
-    const maxX = canvasWidth;
-    const maxY = canvasHeight;
+function drawSun() {
+    context.beginPath();
 
-    const worldWidth = 12800 * 3 / 2;
-    const worldHeight = 7200 * 3 / 2;
+    context.arc(worldToScreenX(0), worldToScreenY(0), 250 * scaleX, 0, Math.PI * 2, false);
 
-    const minZoom = 0.125 * 2 / 3;
-    const maxZoom = 3;
+    context.fillStyle = "yellow";
 
-    let click = true; // Used to prevent clicking when dragging the camera.
+    context.fill();
 
-    // ==================================================================================================== //
+    // If the sun is to be selected, draw a circle around it:
+    if (sunToBeSelected) {
+        context.strokeStyle = "white";
+        context.lineWidth = 8 * scaleX;
+        context.stroke();
+    }
+}
 
-    // Camera functions:
+function draw() {
+    drawBackground();
 
-    // Gets the center of the wolrd:
-    function getCenterX() { return maxX / 2; }
-    function getCenterY() { return maxY / 2; }
+    drawSun();
 
-    function centerCamera() {
-        offsetX = -getCenterX() * 1 / scaleX;
-        offsetY = -getCenterY() * 1 / scaleY;
+    // Draw the orbits:
+    for (let i = 0; i < amountOfAsters; i++) {
+        asters[i].drawOrbit();
     }
 
-    function focusOnCamera(i) {
-        offsetX = screenElements[i].x - (canvasWidth / 2) / scaleX;
-        offsetY = screenElements[i].y - (canvasHeight / 2) / scaleY;
+    // Draw the planets:
+    for (let i = 0; i < amountOfAsters; i++) {
+        asters[i].draw();
+    }
+}
+
+function clear() {
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
+}
+
+function animate() {
+    draw();
+
+    updateCoordinates();
+
+    requestAnimationFrame(animate);
+}
+
+// Updates the coordinates of the planets:
+function updateCoordinates() {
+    for (let i = 0; i < amountOfAsters; i++) {
+        asters[i].x = asters[i].distance * Math.cos((asters[i].velocity * time) / 100 /* asters[i].distance*/);
+        asters[i].y = -asters[i].distance * Math.sin((asters[i].velocity * time) / 100 /* asters[i].distance*/);
+    }
+}
+
+// ==================================================================================================== //
+
+// Call functions:
+
+centerCamera();
+animate();
+
+// ==================================================================================================== //
+
+
+// ==================================================================================================== //
+// ||||||||||||||||||||||||||||||||||||||||| - Big Division - ||||||||||||||||||||||||||||||||||||||||| //
+// ==================================================================================================== //
+
+
+// ==================================================================================================== //
+
+// Pan zoom functions:
+
+// World to screen functions:
+function worldToScreenX(worldX) { return (worldX - pz.OffsetX) * scaleX; }
+function worldToScreenY(worldY) { return (worldY - pz.OffsetY) * scaleY; }
+
+// Screen to world functions:
+function screenToWorldX(screenX) { return (screenX / scaleX) + pz.OffsetX; }
+function screenToWorldY(screenY) { return (screenY / scaleY) + pz.OffsetY; }
+
+// ==================================================================================================== //
+
+// Mouse functions:
+
+function getCursorPosition(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+    }
+}
+
+function mousewhell(event) {
+    // Gets the cursor position:
+    const mousePos = getCursorPosition(event);
+
+    // Mouse before zoom:
+    const mouseBeforeZoomX = screenToWorldX(mousePos.x);
+    const mouseBeforeZoomY = screenToWorldY(mousePos.y);
+
+
+    // Zooms in or out:
+    scaleX += event.deltaY * (- 0.001) * (scaleX / 2);
+    scaleY += event.deltaY * (- 0.001) * (scaleY / 2);
+
+    // Restrict zoom:
+    scaleX = Math.min(Math.max(minZoom, scaleX), maxZoom);
+    scaleY = Math.min(Math.max(minZoom, scaleY), maxZoom);
+
+
+    // Mouse after zoom:
+    const mouseAfterZoomX = screenToWorldX(mousePos.x);
+    const mouseAfterZoomY = screenToWorldY(mousePos.y);
+
+
+    // Adjusts offset so the zoom occurs relative to the mouse position:
+    pz.OffsetX += (mouseBeforeZoomX - mouseAfterZoomX);
+    pz.OffsetY += (mouseBeforeZoomY - mouseAfterZoomY);
+
+    restrictOffset();
+}
+
+// ==================================================================================================== //
+
+// Mouse events (Canvas) -> Pan zoom:
+
+// ------------- //
+// Variables:
+let drag = false;
+let dragStart;
+let dragEnd;
+// ------------- //
+
+// -------------------------------------------- //
+
+// Functions:
+
+canvas.addEventListener('mousedown', function (event) {
+    dragStart = {
+        x: event.pageX - canvas.offsetLeft,
+        y: event.pageY - canvas.offsetTop,
     }
 
-    function unfocusCamera() {
-        focusCamera = false;
-        selectedPlanet = -1;
-
-        console.log("unfocus");
-    }
-
-    function animateIN(i) {
-        mousewhell({ deltaY: -1, clientX: selectedPlanet.x, clientY: selectedPlanet.y});
-
-        restrictOffset();
-
-        if (i == 100) {
-            focusCamera = true;
-            bAnimate = false;
-
-            console.log(selectedPlanet);
-        }
-    }
-
-    function findPoint(k, x1, y1, x2, y2) {
-
-        if (x1 === x2)
-            return undefined;
-
-        return (y1 - y2) * (k - x1) / (x1 - x2) + y1;
-    }
-
-    function findIntersectingPoint(x1, y1, x2, y2, a1, b1, a2, b2) {
-        const a = (y1 - y2) / (x1 - x2);
-        const b = y1 - x1 * (y1 - y2) / (x1 - x2);
-
-        const c = (b1 - b2) / (a1 - a2);
-        const d = b1 - a1 * (b1 - b2) / (a1 - a2);
-
-        const x = (d - b) / (a - c);
-
-        const y = findPoint(x, x1, y1, x2, y2);
-
-        return {
-            x, y
-        }
-    }
-
-    function restrictOffset() {
-        if (offsetX < -worldWidth / 2)
-            offsetX = -worldWidth / 2;
-
-        if (offsetY < -worldHeight / 2)
-            offsetY = -worldHeight / 2;
-
-        if (offsetX > worldWidth / 2 - canvasWidth / scaleX)
-            offsetX = worldWidth / 2 - canvasWidth / scaleX;
-
-        if (offsetY > worldHeight / 2 - canvasHeight / scaleY)
-            offsetY = worldHeight / 2 - canvasHeight / scaleY;
-    }
-
-    // ==================================================================================================== //
-
-    // Draw functions:
-
-    const background = new Image();
-    background.src = "./stars.jpg";
-
-    function drawBackground() {
-        context.drawImage(background,
-
-            worldToScreenX(- worldWidth / 2),
-            worldToScreenY(- worldHeight / 2),
-
-            worldWidth * scaleX,
-            worldHeight * scaleY);
-    }
-
-    function drawSun() {
-        context.beginPath();
-
-        context.arc(worldToScreenX(0), worldToScreenY(0), 250 * scaleX, 0, Math.PI * 2, false);
-
-        context.fillStyle = "yellow";
-
-        context.fill();
-
-        // If the sun is to be selected, draw a circle around it:
-        if (sunToBeSelected) {
-            context.strokeStyle = "white";
-            context.lineWidth = 8 * scaleX;
-            context.stroke();
-        }
-    }
-
-    function draw() {
-        drawBackground();
-
-        drawSun();
-
-        // Draw the orbits:
-        for (let i = 0; i < length; i++) {
-            screenElements[i].drawOrbit();
-        }
-
-        // Draw the planets:
-        for (let i = 0; i < length; i++) {
-            screenElements[i].draw();
-        }
-    }
-
-    function clear() {
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
-    }
-
-    // ==================================================================================================== //
-
-    // Animation functions:
-
-    // ---------------------------- //
-
-    // Related variables:
-
-    let anInStart = 0; // Time that the animation started.
-    let bAnimate = false; // Should the camera animate in?
-
-    let anOffsetX = 0; // Offset X of the animation (start).
-    let anOffsetY = 0; // Offset Y of the animation (start).
-    let anScaleX = 0; // Scale X of the animation (start).
-    let anScaleY = 0; // Scale Y of the animation (start).
-
-    // ---------------------------- //
-
-    function animate() {
-        draw();
-
-        updateCoordinates();
-
-        if (bAnimate) {
-            animateIN(time - anInStart - 1);
-        }
-
-        // Focuses camera on the selected planet:
-        else if (focusCamera) {
-            focusOnCamera(selectedPlanet);
-        }
-
-        requestAnimationFrame(animate);
-    }
-
-    // Updates the coordinates of the planets:
-    function updateCoordinates() {
-        for (let i = 0; i < length; i++) {
-            screenElements[i].x = screenElements[i].distance * Math.cos((screenElements[i].velocity * time) / 100 /* screenElements[i].distance*/);
-            screenElements[i].y = -screenElements[i].distance * Math.sin((screenElements[i].velocity * time) / 100 /* screenElements[i].distance*/);
-        }
-
-        time++;
-    }
-
-    // ==================================================================================================== //
-
-    // Call functions:
-
-    centerCamera();
-    animate();
-
-    // ==================================================================================================== //
-
-
-    // ==================================================================================================== //
-    // ||||||||||||||||||||||||||||||||||||||||| - Big Division - ||||||||||||||||||||||||||||||||||||||||| //
-    // ==================================================================================================== //
-
-
-    // ==================================================================================================== //
-
-    // Pan zoom functions:
-
-    // World to screen functions:
-    function worldToScreenX(worldX) { return (worldX - offsetX) * scaleX; }
-    function worldToScreenY(worldY) { return (worldY - offsetY) * scaleY; }
-
-    // Screen to world functions:
-    function screenToWorldX(screenX) { return (screenX / scaleX) + offsetX; }
-    function screenToWorldY(screenY) { return (screenY / scaleY) + offsetY; }
-
-    // ==================================================================================================== //
-
-    // Mouse functions:
-
-    function getCursorPosition(event) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-        }
-    }
-
-    function mousewhell(event) {
-        // Gets the cursor position:
-        const mousePos = getCursorPosition(event);
-
-        // Mouse before zoom:
-        const mouseBeforeZoomX = screenToWorldX(mousePos.x);
-        const mouseBeforeZoomY = screenToWorldY(mousePos.y);
-
-
-        // Zooms in or out:
-        scaleX += event.deltaY * (- 0.001) * (scaleX / 2);
-        scaleY += event.deltaY * (- 0.001) * (scaleY / 2);
-
-        // Restrict zoom:
-        scaleX = Math.min(Math.max(minZoom, scaleX), maxZoom);
-        scaleY = Math.min(Math.max(minZoom, scaleY), maxZoom);
-
-
-        // Mouse after zoom:
-        const mouseAfterZoomX = screenToWorldX(mousePos.x);
-        const mouseAfterZoomY = screenToWorldY(mousePos.y);
-
-
-        // Adjusts offset so the zoom occurs relative to the mouse position:
-        offsetX += (mouseBeforeZoomX - mouseAfterZoomX);
-        offsetY += (mouseBeforeZoomY - mouseAfterZoomY);
-
-        restrictOffset();
-    }
-
-    // ==================================================================================================== //
-
-    // Mouse events (Canvas) -> Pan zoom:
-
-    // ------------- //
-    // Variables:
-    let drag = false;
-    let dragStart;
-    let dragEnd;
-    // ------------- //
-
-    // -------------------------------------------- //
-
-    // Functions:
-
-    canvas.addEventListener('mousedown', function (event) {
-        dragStart = {
-            x: event.pageX - canvas.offsetLeft,
-            y: event.pageY - canvas.offsetTop,
-        }
-
-        drag = true;
-    })
-
-    canvas.addEventListener('mousemove', function (event) {
-        if (drag) {
-            // ---------------------------- //
-            // Checking conditions:
-            if (click) click = false;
-
-            if (focusCamera) unfocusCamera();
-
-            if (doOldOffsets) doOldOffsets = false;
-
-            if (bAnimate) {
-                bAnimate = false;
-                selectedPlanet = -1;
-            }
-            // ---------------------------- //
-
-            // Gets drag end:
-            dragEnd = {
-                x: event.pageX - canvas.offsetLeft,
-                y: event.pageY - canvas.offsetTop,
-            };
-
-            // Updates the offset:
-            offsetX -= (dragEnd.x - dragStart.x) / scaleX;
-            offsetY -= (dragEnd.y - dragStart.y) / scaleY;
-
-            restrictOffset();
-
-
-            dragStart = dragEnd; // Resets the dragStart.
-
-            // Draw:
-            clear();
-            draw();
-        }
-        else {
-            // Checks if the mouse is hovering a planet or it's orbit:
-
-            if (!click) click = true; // Allows clicking again.
-
-            // ---------------------------- //
-            // Gets the cursor position:
-            const cursor = getCursorPosition(event);
-
-            const worldCursor = {
-                x: screenToWorldX(cursor.x),
-                y: screenToWorldY(cursor.y),
-            }
-            // ---------------------------- //
-
-            const distance = Math.sqrt(Math.pow(worldCursor.x, 2) + Math.pow(worldCursor.y, 2));
-
-            // Checks if the mouse is hovering a planet:
-            for (let i = 0; i < length; i++) {
-                const planet = screenElements[i];
-
-                if (distance < planet.distance + planet.radius &&
-                    distance > planet.distance - planet.radius) {
-
-                    canvas.style.cursor = "pointer"; // Changes the cursor to a pointer.
-                    planetToBeSelected = i; // Sets the planet to be selected.
-
-                    return; // Stops the function.
-                }
-            }
-
-            if (distance <= 250) {
-                canvas.style.cursor = "pointer"; // Changes the cursor to a pointer.
-                planetToBeSelected = -1; // Resets the planet to be selected.
-
-                sunToBeSelected = true;
-
-                return; // Stops the function.
-            }
-            else if (sunToBeSelected) {
-                sunToBeSelected = false;
-            }
-
-            canvas.style.cursor = "default"; // Changes the cursor to the default.
-            planetToBeSelected = -1; // Resets the planet to be selected.
-        }
-    })
-
-    canvas.addEventListener('mouseup', function (event) { drag = false; })
-
-    this.canvas.addEventListener('wheel', (event) => {
-        event.preventDefault(); // Prevents the page from scrolling.
-
+    drag = true;
+})
+
+canvas.addEventListener('mousemove', function (event) {
+    if (drag) {
         // ---------------------------- //
         // Checking conditions:
+        if (click) click = false;
+
         if (focusCamera) unfocusCamera();
 
         if (doOldOffsets) doOldOffsets = false;
@@ -450,94 +242,177 @@ window.onload = function () {
         }
         // ---------------------------- //
 
-        mousewhell(event);
+        // Gets drag end:
+        dragEnd = {
+            x: event.pageX - canvas.offsetLeft,
+            y: event.pageY - canvas.offsetTop,
+        };
+
+        // Updates the offset:
+        pz.OffsetX -= (dragEnd.x - dragStart.x) / scaleX;
+        pz.OffsetY -= (dragEnd.y - dragStart.y) / scaleY;
+
+        restrictOffset();
+
+
+        dragStart = dragEnd; // Resets the dragStart.
 
         // Draw:
         clear();
         draw();
-    });
+    }
+    else {
+        // Checks if the mouse is hovering a planet or it's orbit:
 
-    this.canvas.addEventListener('click', clickFunc)
+        if (!click) click = true; // Allows clicking again.
 
-    function clickFunc(event) {
-        if (click && !bAnimate) {
-            if (planetToBeSelected != -1) { // If the mouse is hovering a planet.
-                doOldOffsets = true;
+        // ---------------------------- //
+        // Gets the cursor position:
+        const cursor = getCursorPosition(event);
 
-                let oldSelectedPlanet = selectedPlanet;
-                selectedPlanet = planetToBeSelected;
+        const worldCursor = {
+            x: screenToWorldX(cursor.x),
+            y: screenToWorldY(cursor.y),
+        }
+        // ---------------------------- //
 
-                // Selects the planet if it's not already selected:
-                if (oldSelectedPlanet != selectedPlanet) {
+        const distance = Math.sqrt(Math.pow(worldCursor.x, 2) + Math.pow(worldCursor.y, 2));
 
-                    // Saves the old offsets (for when the camera is unfocused | will be used for animation):
-                    if (updateOldOffsets) {
-                        oldOffsetX = offsetX;
-                        oldOffsetY = offsetY;
-                        oldScaleX = scaleX;
-                        oldScaleY = scaleY;
+        // Checks if the mouse is hovering a planet:
+        for (let i = 0; i < amountOfAsters; i++) {
+            const planet = asters[i];
 
-                        updateOldOffsets = false;
-                    }
+            if (distance < planet.distance + planet.radius &&
+                distance > planet.distance - planet.radius) {
 
-                    //focusCamera = true;
+                canvas.style.cursor = "pointer"; // Changes the cursor to a pointer.
+                planetToBeSelected = i; // Sets the planet to be selected.
 
-                    bAnimate = true;
-
-                    anInStart = time;
-                    anOffsetX = offsetX;
-                    anOffsetY = offsetY;
-                    anScaleX = scaleX;
-                    anScaleY = scaleY;
-                }
-
-                // Deselects the planet:
-                else if (focusCamera) {
-                    unfocusCamera();
-                    oldSelectedPlanet = -1;
-                }
+                return; // Stops the function.
             }
+        }
 
-            else if (sunToBeSelected) {
-                doOldOffsets = true;
-                sunSelected = true;
+        if (distance <= 250) {
+            canvas.style.cursor = "pointer"; // Changes the cursor to a pointer.
+            planetToBeSelected = -1; // Resets the planet to be selected.
+
+            sunToBeSelected = true;
+
+            return; // Stops the function.
+        }
+        else if (sunToBeSelected) {
+            sunToBeSelected = false;
+        }
+
+        canvas.style.cursor = "default"; // Changes the cursor to the default.
+        planetToBeSelected = -1; // Resets the planet to be selected.
+    }
+})
+
+canvas.addEventListener('mouseup', function (event) { drag = false; })
+
+this.canvas.addEventListener('wheel', (event) => {
+    event.preventDefault(); // Prevents the page from scrolling.
+
+    // ---------------------------- //
+    // Checking conditions:
+    if (focusCamera) unfocusCamera();
+
+    if (doOldOffsets) doOldOffsets = false;
+
+    if (bAnimate) {
+        bAnimate = false;
+        selectedPlanet = -1;
+    }
+    // ---------------------------- //
+
+    mousewhell(event);
+
+    // Draw:
+    clear();
+    draw();
+});
+
+this.canvas.addEventListener('click', clickFunc)
+
+function clickFunc(event) {
+    if (click && !bAnimate) {
+        if (planetToBeSelected != -1) { // If the mouse is hovering a planet.
+            doOldOffsets = true;
+
+            let oldSelectedPlanet = selectedPlanet;
+            selectedPlanet = planetToBeSelected;
+
+            // Selects the planet if it's not already selected:
+            if (oldSelectedPlanet != selectedPlanet) {
 
                 // Saves the old offsets (for when the camera is unfocused | will be used for animation):
                 if (updateOldOffsets) {
-                    oldOffsetX = offsetX;
-                    oldOffsetY = offsetY;
+                    oldpz.OffsetX = pz.OffsetX;
+                    oldpz.OffsetY = pz.OffsetY;
                     oldScaleX = scaleX;
                     oldScaleY = scaleY;
 
                     updateOldOffsets = false;
                 }
 
-                // Changes the scale so the sun (when focused) have a constant screen size:
-                scaleX = scaleY = 2 / (250 /* <- Sun Radius */ / 25);
+                //focusCamera = true;
 
-                offsetX = -canvasWidth / 2 / scaleX;
-                offsetY = -canvasHeight / 2 / scaleY;
+                bAnimate = true;
+
+                anInStart = time;
+                anpz.OffsetX = pz.OffsetX;
+                anpz.OffsetY = pz.OffsetY;
+                anScaleX = scaleX;
+                anScaleY = scaleY;
             }
-            // Unfocuses on the selected planet (resets):
-            else {
-                focusCamera = false; // Resets the focusCamera variable.
 
-                // Returns to the old offsets:
-                if (doOldOffsets) {
-                    scaleX = oldScaleX;
-                    scaleY = oldScaleY;
-                    offsetX = oldOffsetX;
-                    offsetY = oldOffsetY;
-                }
-
-                selectedPlanet = -1; // Resets the selected planet.
-
-                updateOldOffsets = true; // Allows the old offsets to be updated.
+            // Deselects the planet:
+            else if (focusCamera) {
+                unfocusCamera();
+                oldSelectedPlanet = -1;
             }
         }
+
+        else if (sunToBeSelected) {
+            doOldOffsets = true;
+            sunSelected = true;
+
+            // Saves the old offsets (for when the camera is unfocused | will be used for animation):
+            if (updateOldOffsets) {
+                oldpz.OffsetX = pz.OffsetX;
+                oldpz.OffsetY = pz.OffsetY;
+                oldScaleX = scaleX;
+                oldScaleY = scaleY;
+
+                updateOldOffsets = false;
+            }
+
+            // Changes the scale so the sun (when focused) have a constant screen size:
+            scaleX = scaleY = 2 / (250 /* <- Sun Radius */ / 25);
+
+            pz.OffsetX = -canvasWidth / 2 / scaleX;
+            pz.OffsetY = -canvasHeight / 2 / scaleY;
+        }
+        // Unfocuses on the selected planet (resets):
+        else {
+            focusCamera = false; // Resets the focusCamera variable.
+
+            // Returns to the old offsets:
+            if (doOldOffsets) {
+                scaleX = oldScaleX;
+                scaleY = oldScaleY;
+                pz.OffsetX = oldpz.OffsetX;
+                pz.OffsetY = oldpz.OffsetY;
+            }
+
+            selectedPlanet = -1; // Resets the selected planet.
+
+            updateOldOffsets = true; // Allows the old offsets to be updated.
+        }
     }
-
-    // -------------------------------------------- //
-
-    // ==================================================================================================== //
 }
+
+// -------------------------------------------- //
+
+// ==================================================================================================== //
