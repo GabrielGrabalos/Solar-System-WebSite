@@ -1,13 +1,17 @@
 class PanZoom {
-    constructor(offsetX = 0, offsetY = 0, scale = 1, minZoom = 0.025, maxZoom = 10) {
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.scale = scale;
-        this.minZoom = minZoom;
-        this.maxZoom = maxZoom;
+    constructor(args) {
+        this.offsetX = args.offsetX || 0;
+        this.offsetY = args.offsetY || 0;
+        this.scale = args.scale || 1;
+        this.minZoom = args.minZoom || 0.1;
+        this.maxZoom = args.maxZoom || 10;
+
+        this.worldDimensions = args.worldDimensions; // { width, height }
+
         this.drag = false;
         this.dragStart = { x: 0, y: 0 };
         this.dragEnd = { x: 0, y: 0 };
+
         this.click = true;
     }
 
@@ -73,6 +77,8 @@ class PanZoom {
         this.drag = value;
     }
 
+    // ======================== || CORE FUNCTIONS || ======================== //
+
     // World to screen functions:
     WorldToScreenX(worldX) {
         return (worldX - this.OffsetX) * this.Scale;
@@ -91,29 +97,63 @@ class PanZoom {
         return (screenY / this.Scale) + this.OffsetY;
     }
 
+    // ======================== || OFFSET FUNCTIONS || ======================== //
+
+    RestrictOffset() {
+        if (!this.worldDimensions) return; // Doesn't throw an error because is a function called by the class.
+
+        this.OffsetX = Math.min(
+            Math.max(this.OffsetX, 0),
+            this.worldDimensions.width - (this.worldDimensions.width / this.Scale) 
+                                         // ^ Accounts for the size of the 'camera'
+        );
+
+        this.OffsetY = Math.min(
+            Math.max(this.OffsetY, 0),
+            this.worldDimensions.height - (this.worldDimensions.height / this.Scale)
+                                          // ^ Accounts for the size of the 'camera'
+        );
+    }
+
+    CenterOffset() {
+        if(!this.worldDimensions)
+            throw new Error('World dimensions not set');
+
+        // Sets the offset to the center of the world
+        // and subtracts half of the 'camera' width and
+        // height to center the view:
+
+        this.OffsetX = (this.worldDimensions.width / 2) - (this.worldDimensions.width / this.Scale / 2);
+        this.OffsetY = (this.worldDimensions.height / 2) - (this.worldDimensions.height / this.Scale / 2);
+    }
+
+    // ======================== || MOUSE FUNCTIONS || ======================== //
+
     // Mouse functions:
     MouseDown(mouseX, mouseY) {
         this.dragStart.x = mouseX;
         this.dragStart.y = mouseY;
         this.drag = true;
 
-        if (!this.click) this.click = true;
+        if (!this.click) this.click = true; // Click is allowed if the mouse is not dragging.
     }
 
     MouseMove(mouseX, mouseY) {
-        if (this.drag) {
-            if (this.click) this.click = false;
+        if (!this.drag) return;
 
-            // Gets drag end:
-            this.dragEnd.x = mouseX;
-            this.dragEnd.y = mouseY;
+        if (this.click) this.click = false; // Click is not allowed if the mouse is dragging.
 
-            // Updates the offset:
-            this.OffsetX -= (this.dragEnd.x - this.dragStart.x) / this.Scale;
-            this.OffsetY -= (this.dragEnd.y - this.dragStart.y) / this.Scale;
+        // Gets drag end:
+        this.dragEnd.x = mouseX;
+        this.dragEnd.y = mouseY;
 
-            this.dragStart = { ...this.dragEnd }; // Resets the dragStart.
-        }
+        // Updates the offset:
+        this.OffsetX -= (this.dragEnd.x - this.dragStart.x) / this.Scale;
+        this.OffsetY -= (this.dragEnd.y - this.dragStart.y) / this.Scale;
+
+        this.dragStart = { ...this.dragEnd }; // Resets the dragStart.
+
+        this.RestrictOffset();
     }
 
     MouseUp() {
@@ -137,5 +177,7 @@ class PanZoom {
         // Adjusts offset so the zoom occurs relative to the mouse position:
         this.OffsetX += (mouseBeforeZoomX - mouseAfterZoomX);
         this.OffsetY += (mouseBeforeZoomY - mouseAfterZoomY);
+
+        this.RestrictOffset();
     }
 }

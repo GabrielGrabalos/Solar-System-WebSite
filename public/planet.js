@@ -1,6 +1,6 @@
 class Planet extends CelestialBody {
-    constructor(x, y, velocity, radius, color, orbit) {
-        super(x, y, velocity, radius, color, orbit);
+    constructor(velocity, radius, color, orbit) {
+        super(orbit.distance, 0, velocity, radius, color, orbit);
     }
 
     draw(ctx, pz, isSelected) {
