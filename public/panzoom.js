@@ -81,6 +81,9 @@ class PanZoom {
     }
 
     set ScreenDimensions(value) {
+        this.OffsetX -= (value.width - this.screenDimensions.width) / this.Scale / 2;
+        this.OffsetY -= (value.height - this.screenDimensions.height) / this.Scale / 2;
+        
         this.screenDimensions = value;
 
         this.calculateMinZoom();

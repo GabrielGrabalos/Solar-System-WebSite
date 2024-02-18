@@ -1,8 +1,8 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext('2d');
 
-const canvasWidth = canvas.width = window.innerWidth;
-const canvasHeight = canvas.height = window.innerHeight;
+let canvasWidth = canvas.width = window.innerWidth;
+let canvasHeight = canvas.height = window.innerHeight;
 
 const worldDimensions = { width: 12800, height: 7200 };
 
@@ -119,3 +119,10 @@ canvas.addEventListener('wheel', (event) => {
 
     pz.MouseWheel(mouseX, mouseY, event.deltaY);
 });
+
+window.onresize = () => {
+    canvasWidth = canvas.width = window.innerWidth;
+    canvasHeight = canvas.height = window.innerHeight;
+
+    pz.ScreenDimensions = { width: canvas.width, height: canvas.height };
+}
