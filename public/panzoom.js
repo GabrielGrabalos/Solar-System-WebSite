@@ -8,6 +8,11 @@ class PanZoom {
 
         this.worldDimensions = args.worldDimensions; // { width, height }
 
+        this.screenDimensions = args.screenDimensions; // { width, height }
+
+        // Calculates the minimum zoom based on the world and screen dimensions:
+        this.calculateMinZoom();
+
         this.drag = false;
         this.dragStart = { x: 0, y: 0 };
         this.dragEnd = { x: 0, y: 0 };
@@ -61,6 +66,26 @@ class PanZoom {
         this.maxZoom = value;
     }
 
+    get WorldDimensions() {
+        return this.worldDimensions;
+    }
+
+    set WorldDimensions(value) {
+        this.worldDimensions = value;
+
+        this.calculateMinZoom();
+    }
+
+    get ScreenDimensions() {
+        return this.screenDimensions;
+    }
+
+    set ScreenDimensions(value) {
+        this.screenDimensions = value;
+
+        this.calculateMinZoom();
+    }
+
     get Click() {
         return this.click;
     }
@@ -99,32 +124,51 @@ class PanZoom {
 
     // ======================== || OFFSET FUNCTIONS || ======================== //
 
+    // Calculates the minimum zoom based on the world and screen dimensions:
+    calculateMinZoom() {
+        if (!this.worldDimensions)
+            return;
+
+        if (!this.screenDimensions)
+            return;
+
+        const minZoomX = this.screenDimensions.width / this.worldDimensions.width;
+        const minZoomY = this.screenDimensions.height / this.worldDimensions.height;
+
+        this.minZoom = Math.max(minZoomX, minZoomY);
+    }
+
     RestrictOffset() {
         if (!this.worldDimensions) return; // Doesn't throw an error because is a function called by the class.
 
-        this.OffsetX = Math.min(
-            Math.max(this.OffsetX, 0),
-            this.worldDimensions.width - (this.worldDimensions.width / this.Scale) 
-                                         // ^ Accounts for the size of the 'camera'
-        );
+        if (!this.screenDimensions) return; // Doesn't throw an error because is a function called by the class.
 
-        this.OffsetY = Math.min(
-            Math.max(this.OffsetY, 0),
-            this.worldDimensions.height - (this.worldDimensions.height / this.Scale)
-                                          // ^ Accounts for the size of the 'camera'
-        );
+        if (this.OffsetX < -this.worldDimensions.width / 2)
+            this.OffsetX = -this.worldDimensions.width / 2;
+
+        if (this.OffsetY < -this.worldDimensions.height / 2)
+            this.OffsetY = -this.worldDimensions.height / 2;
+
+        if (this.OffsetX > this.worldDimensions.width / 2 - this.screenDimensions.width / this.Scale)
+            this.OffsetX = this.worldDimensions.width / 2 - this.screenDimensions.width / this.Scale;
+
+        if (this.OffsetY > this.worldDimensions.height / 2 - this.screenDimensions.height / this.Scale)
+            this.OffsetY = this.worldDimensions.height / 2 - this.screenDimensions.height / this.Scale;
     }
 
     CenterOffset() {
-        if(!this.worldDimensions)
+        if (!this.worldDimensions)
             throw new Error('World dimensions not set');
+
+        if (!this.screenDimensions)
+            throw new Error('Screen dimensions not set');
 
         // Sets the offset to the center of the world
         // and subtracts half of the 'camera' width and
         // height to center the view:
 
-        this.OffsetX = (this.worldDimensions.width / 2) - (this.worldDimensions.width / this.Scale / 2);
-        this.OffsetY = (this.worldDimensions.height / 2) - (this.worldDimensions.height / this.Scale / 2);
+        this.OffsetX = - (this.screenDimensions.width / this.Scale) / 2;
+        this.OffsetY = - (this.screenDimensions.height / this.Scale) / 2;
     }
 
     // ======================== || MOUSE FUNCTIONS || ======================== //

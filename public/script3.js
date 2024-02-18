@@ -1,6 +1,12 @@
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext('2d');
+
+const canvasWidth = canvas.width = window.innerWidth;
+const canvasHeight = canvas.height = window.innerHeight;
+
 const worldDimensions = { width: 12800, height: 7200 };
 
-const pz = new PanZoom({ worldDimensions });
+const pz = new PanZoom({ worldDimensions, screenDimensions: { width: canvasWidth, height: canvasHeight } });
 
 const sun = new Star(0, 0, 250, "#ffcc00");
 
@@ -32,7 +38,7 @@ const planetData = [
 
 // Create an array of planet objects:
 const celestialBodies = planetData.map(planet =>
-    createPlanet(planet.name, planet.orbitalPeriod, planet.radius, planet.color, planet.distanceToParent)
+    createPlanet(planet.orbitalPeriod, planet.radius, planet.color, planet.distanceToParent)
 );
 
 // Add the sun to the array:
@@ -40,17 +46,11 @@ celestialBodies.unshift(sun);
 
 const amountOfCelestialBodies = celestialBodies.length;
 
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext('2d');
-
-const canvasWidth = canvas.width = window.innerWidth;
-const canvasHeight = canvas.height = window.innerHeight;
-
 const background = new Image();
 background.src = "./stars.jpg";
 
 function drawBackground() {
-   ctx.drawImage(
+    ctx.drawImage(
         background,
 
         pz.WorldToScreenX(- worldDimensions.width / 2),
@@ -82,10 +82,8 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-window.onload = () => {
-    pz.CenterOffset();
-    animate();
-}
+pz.CenterOffset();
+animate();
 
 // Mouse functions:
 
