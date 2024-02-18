@@ -76,8 +76,8 @@ class CelestialBody {
 
         let angle = Math.atan2(this.y - parent.y, this.x - parent.x);
 
-        let x = parent.x + distance * Math.cos(angle + this.velocity);
-        let y = parent.y + distance * Math.sin(angle + this.velocity);
+        let x = parent.x + distance * Math.cos(angle + this.velocity * 0.1);
+        let y = parent.y + distance * Math.sin(angle + this.velocity * 0.1);
 
         this.x = x;
         this.y = y;

@@ -138,7 +138,9 @@ class PanZoom {
         const minZoomX = this.screenDimensions.width / this.worldDimensions.width;
         const minZoomY = this.screenDimensions.height / this.worldDimensions.height;
 
-        this.minZoom = Math.max(minZoomX, minZoomY);
+        this.MinZoom = Math.max(minZoomX, minZoomY);
+
+        this.Scale = this.scale; // Restricts the current zoom.
     }
 
     RestrictOffset() {
