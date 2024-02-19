@@ -1,13 +1,16 @@
 class CelestialBody {
 
-    constructor(x, y, velocity, radius, color, orbit) {
-        this.x = x;
-        this.y = y;
+    constructor(args) {
+        this.angle = args.angle || 0;
+
+        let velocity = args.velocity || 0;
+
+        let orbit = args.orbit || null;
 
         this.velocity = velocity * (orbit ? (orbit.clockwise ? 1 : -1) : 1);
 
-        this.radius = radius;
-        this.color = color;
+        this.radius = args.radius || 0;
+        this.color = args.color || "white";
 
         /**
          * 
@@ -22,6 +25,13 @@ class CelestialBody {
         **/
 
         this.orbit = orbit;
+
+        // If the orbit is defined, then the x and y will be calculated based on the distance and angle:
+        let x = this.orbit? this.orbit.parentCelestialBody.x + this.orbit.distance * Math.cos(this.angle) : 0;
+        let y = this.orbit? this.orbit.parentCelestialBody.y + this.orbit.distance * Math.sin(this.angle) : 0;
+
+        this.x = args.x || x;
+        this.y = args.y || y;
     }
 
     draw(ctx, pz, isSelected) {
@@ -68,18 +78,21 @@ class CelestialBody {
     }
 
     update() {
-        if (!this.orbit) return;
-
-        let parent = this.orbit.parentCelestialBody;
-
+        if (!this.orbit || !this.orbit.parentCelestialBody || !this.orbit.distance) return;
+    
+        let parent = this.orbit.parentCelestialBody || { x: 0, y: 0 };
         let distance = this.orbit.distance;
-
-        let angle = Math.atan2(this.y - parent.y, this.x - parent.x);
-
-        let x = parent.x + distance * Math.cos(angle + this.velocity / distance);
-        let y = parent.y + distance * Math.sin(angle + this.velocity / distance);
-
+    
+        // Calculate the new angle based on the velocity:
+        let deltaAngle = this.velocity / distance;
+        let newAngle = this.angle + deltaAngle;
+    
+        let x = parent.x + distance * Math.cos(newAngle);
+        let y = parent.y + distance * Math.sin(newAngle);
+    
         this.x = x;
         this.y = y;
-    }
+
+        this.angle = newAngle;
+    }    
 }

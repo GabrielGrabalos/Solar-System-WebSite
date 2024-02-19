@@ -20,7 +20,8 @@ function createPlanet(orbitalPeriod, radius, color, distanceToParent) {
             parentCelestialBody: sun,
             distance: distanceToParent / 2,
             clockWise: false
-        }
+        },
+        Math.random() * Math.PI * 2
     );
 }
 
@@ -68,35 +69,6 @@ const moon = new Planet(
 );
 
 celestialBodies.push(moon);
-const moon2 = new Planet(
-    2, 5, "#ff00ff",
-    {
-        parentCelestialBody: celestialBodies[9], // moon
-        distance: 50
-    }
-);
-
-celestialBodies.push(moon2);
-
-const moon3 = new Planet(
-    3, 5, "#00ff00",
-    {
-        parentCelestialBody: celestialBodies[10], // moon
-        distance: 20
-    }
-);
-
-celestialBodies.push(moon3);
-
-const moon4 = new Planet(
-    4, 5, "#0000ff",
-    {
-        parentCelestialBody: celestialBodies[11], // moon
-        distance: 10
-    }
-);
-
-celestialBodies.push(moon4);
 
 const amountOfCelestialBodies = celestialBodies.length;
 
