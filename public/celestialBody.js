@@ -4,7 +4,7 @@ class CelestialBody {
         this.x = x;
         this.y = y;
 
-        this.velocity = velocity;
+        this.velocity = velocity * (orbit ? (orbit.clockwise ? 1 : -1) : 1);
 
         this.radius = radius;
         this.color = color;
@@ -58,7 +58,7 @@ class CelestialBody {
             pz.WorldToScreenX(parent.x),
             pz.WorldToScreenY(parent.y),
             this.orbit.distance * pz.Scale,
-            0, Math.PI * 2, false
+            0, Math.PI * 2 + 1, false
         );
 
         ctx.lineWidth = 4 * pz.Scale * (isSelected) ? 2 : 1;
@@ -76,8 +76,8 @@ class CelestialBody {
 
         let angle = Math.atan2(this.y - parent.y, this.x - parent.x);
 
-        let x = parent.x + distance * Math.cos(angle + this.velocity * 0.1);
-        let y = parent.y + distance * Math.sin(angle + this.velocity * 0.1);
+        let x = parent.x + distance * Math.cos(angle + this.velocity / distance);
+        let y = parent.y + distance * Math.sin(angle + this.velocity / distance);
 
         this.x = x;
         this.y = y;
