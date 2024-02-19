@@ -1,4 +1,4 @@
-## Fun Fact 🎉
+## 🎉 Fun Fact
 
 </br>
 
@@ -10,19 +10,19 @@ This project holds a special place in my heart as it marks my first-ever full-st
 
 Welcome to The Solar System Website ( _I still have to figure out a better name_ )!  🌌 Embark on an exciting journey through space and learn all about our fascinating solar system!  🪐 Get ready to blast off into a universe of fun and discovery! 🚀💫
 
-## Features 🎉
+## 🎉 Features
 
 - Explore the solar system by panning and zooming around a canvas 🖌️.
 - Click on planets to reveal information cards containing interesting facts ℹ️.
 - Enjoy animated camera movements and other interactive details while exploring 🎨.
 
-## Technologies Used 💻
+## 💻 Technologies Used
 
 - **Express.js**: A web application framework for Node.js 🚀.
 - **EJS**: Embedded JavaScript templates for dynamic web content 📄.
 - **MongoDB**: A NoSQL database for storing planet information 🛰️.
 
-## Getting Started 🚀
+## 🚀 Getting Started
 
 To run this project locally, follow these steps:
 
@@ -35,23 +35,23 @@ To run this project locally, follow these steps:
 7. 🚀 Run `npm start` to start the server.
 8. 🌐 Open your web browser and navigate to `http://localhost:3000` to access the application.
 
-## Usage 🌟
+## 🌟 Usage
 
 Once the application is running, you can start exploring the solar system by interacting with the canvas 🎨.  Click on planets to learn more about them through information cards ℹ️.
 
-## Contributing 🚀
+## 🚀 Contributing
 
 Contributions to this project are welcome!  If you have ideas for new features, improvements, or bug fixes, please open an issue or submit a pull request 🌟.
 
-## Credits 🌠
+## 🌠 Credits
 
 This project was created with love by Gabriel Grabalos 🌟.  Feel free to contact me with any questions or suggestions 🚀.
 
-## License 📝
+## 📝 License
 
 This project is licensed under the [MIT License](LICENSE) 📄.  Feel free to use, modify, and distribute the code for educational purposes 🚀.
 
-## Future Features ☄️
+## ☄️ Future Features
 
 - I'm currently working on a 2024 update to better structure the code, files, and overall enhance the application. Once that's done, it'll be posted on GitHub Pages or some other more suitable service.
 
