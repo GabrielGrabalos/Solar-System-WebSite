@@ -72,23 +72,8 @@ celestialBodies.push(moon);
 
 const amountOfCelestialBodies = celestialBodies.length;
 
-const background = new Image();
-background.src = "./stars.jpg";
-
-function drawBackground() {
-    ctx.drawImage(
-        background,
-
-        pz.WorldToScreenX(- worldDimensions.width / 2),
-        pz.WorldToScreenY(- worldDimensions.height / 2),
-
-        worldDimensions.width * pz.Scale,
-        worldDimensions.height * pz.Scale
-    );
-}
-
 function draw() {
-    drawBackground();
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // Draw the orbits:
     for (let i = 0; i < amountOfCelestialBodies; i++) {
