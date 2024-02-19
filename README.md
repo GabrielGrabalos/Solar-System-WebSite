@@ -12,15 +12,15 @@ Welcome to The Solar System Website ( _I still have to figure out a better name_
 
 ## 🎉 Features
 
-- Explore the solar system by panning and zooming around a canvas 🖌️.
-- Click on planets to reveal information cards containing interesting facts ℹ️.
-- Enjoy animated camera movements and other interactive details while exploring 🎨.
+- 🖌️ Explore the solar system by panning and zooming around a canvas.
+- ℹ️ Click on planets to reveal information cards containing interesting facts.
+- 🎨 Enjoy animated camera movements and other interactive details while exploring.
 
 ## 💻 Technologies Used
 
-- **Express.js**: A web application framework for Node.js 🚀.
-- **EJS**: Embedded JavaScript templates for dynamic web content 📄.
-- **MongoDB**: A NoSQL database for storing planet information 🛰️.
+- 🚀 **Express.js**: A web application framework for Node.js.
+   📄 **EJS**: Embedded JavaScript templates for dynamic web content.
+- 🛰️ **MongoDB**: A NoSQL database for storing planet information.
 
 ## 🚀 Getting Started
 
