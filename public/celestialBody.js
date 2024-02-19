@@ -34,6 +34,8 @@ class CelestialBody {
         this.y = args.y || y;
     }
 
+    // ============================== || DRAWING FUNCTIONS || ============================== //
+
     draw(ctx, pz, isSelected) {
         ctx.beginPath();
 
@@ -77,10 +79,12 @@ class CelestialBody {
         ctx.stroke();
     }
 
+    // ============================== || UPDATING FUNCTIONS || ============================== //
+
     update() {
         if (!this.orbit || !this.orbit.parentCelestialBody || !this.orbit.distance) return;
     
-        let parent = this.orbit.parentCelestialBody || { x: 0, y: 0 };
+        let parent = this.orbit.parentCelestialBody;
         let distance = this.orbit.distance;
     
         // Calculate the new angle based on the velocity:
@@ -94,5 +98,34 @@ class CelestialBody {
         this.y = y;
 
         this.angle = newAngle;
-    }    
+    }
+
+    // ============================== || HOVERING FUNCTIONS || ============================== //
+
+    isHovering(pz, mouseX, mouseY) {
+        return Math.sqrt(
+            Math.pow(pz.WorldToScreenX(this.x) - mouseX, 2) +
+            Math.pow(pz.WorldToScreenY(this.y) - mouseY, 2)
+        ) < this.radius * pz.Scale;
+    }
+
+    isHoveringOrbit(pz, mouseX, mouseY) {
+        // Checks if the mouse is on the world range of 40 pixels of the orbit:
+        if (!this.orbit) return false;
+
+        const parent = this.orbit.parentCelestialBody;
+        
+        const x = pz.WorldToScreenX(parent.x);
+        const y = pz.WorldToScreenY(parent.y);
+
+        const distance = this.orbit.distance * pz.Scale;
+        const mouseDistance = Math.sqrt((x - mouseX) ** 2 + (y - mouseY) ** 2);
+
+        const range = 40 * pz.Scale;
+
+        return (
+            mouseDistance > distance - range &&
+            mouseDistance < distance + range
+        );
+    }
 }

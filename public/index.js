@@ -10,6 +10,11 @@ const pz = new PanZoom({ worldDimensions, screenDimensions: { width: canvasWidth
 
 const sun = new Star(0, 0, 250, "#ffcc00");
 
+let mouse = { x: 0, y: 0 };
+
+let celestialBodyToBeSelected = -1;
+let selectedCelestialBody = null;
+
 // Function to create a planet object:
 function createPlanet(orbitalPeriod, radius, color, distanceToParent) {
     return new Planet(
@@ -75,14 +80,52 @@ const amountOfCelestialBodies = celestialBodies.length;
 function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
+    let isAnyHovering = -1;
+
     // Draw the orbits:
     for (let i = 0; i < amountOfCelestialBodies; i++) {
-        celestialBodies[i].drawOrbit(ctx, pz, false);
-        celestialBodies[i].draw(ctx, pz, false);
+        const celestialBody = celestialBodies[i];
+
+        // Check if the celestial body is being hovered or if the orbit is being hovered:
+        const isHovering =
+            (
+                !isAnyHovering != -1 && // If there is already a hovering object, then don't check for hovering
+                (
+                    celestialBody.isHoveringOrbit(pz, mouse.x, mouse.y) ||
+                    celestialBody.isHovering(pz, mouse.x, mouse.y)
+                )
+            );
+
+        celestialBody.drawOrbit(ctx, pz, isHovering);
+        celestialBody.draw(ctx, pz, isHovering);
+
+        if (isHovering) isAnyHovering = i;
     }
+
+    if (isAnyHovering != -1)
+        canvas.style.cursor = "pointer";
+    else
+        canvas.style.cursor = "default";
+
+    celestialBodyToBeSelected = isAnyHovering;
 }
 
+let framesLeft = 60;
+
 function animate() {
+    // If a celestial body is selected, then animate to it:
+    if (selectedCelestialBody) {
+        // If there are frames left, then animate to the selected celestial body:
+        if (framesLeft > 0) {
+            pz.requestAnimationFrameTo(selectedCelestialBody.x, selectedCelestialBody.y, 1, framesLeft);
+            framesLeft--;
+        }
+        // If there are no frames left, then focus on the selected celestial body:
+        else {
+            pz.requestFocusOn(selectedCelestialBody.x, selectedCelestialBody.y);
+        }
+    }
+
     draw();
 
     // Updates the planets:
@@ -96,6 +139,14 @@ function animate() {
 pz.CenterOffset();
 animate();
 
+// Function to deselect the selected celestial body:
+function deselectCelestialBody() {
+    if (!selectedCelestialBody) return;
+
+    selectedCelestialBody = null;
+    framesLeft = 60;
+}
+
 // Mouse functions:
 
 function getCursorPosition(event) {
@@ -107,6 +158,7 @@ function getCursorPosition(event) {
 }
 
 canvas.addEventListener('mousedown', (event) => {
+    deselectCelestialBody();
 
     const { mouseX, mouseY } = getCursorPosition(event);
 
@@ -117,6 +169,9 @@ canvas.addEventListener('mousemove', (event) => {
 
     const { mouseX, mouseY } = getCursorPosition(event);
 
+    mouse.x = mouseX;
+    mouse.y = mouseY;
+
     pz.MouseMove(mouseX, mouseY);
 })
 
@@ -125,10 +180,22 @@ canvas.addEventListener('mouseup', () => {
 })
 
 canvas.addEventListener('wheel', (event) => {
+    deselectCelestialBody();
 
     const { mouseX, mouseY } = getCursorPosition(event);
 
     pz.MouseWheel(mouseX, mouseY, event.deltaY);
+});
+
+canvas.addEventListener('click', () => {
+    if (!pz.Click) return;
+
+    if (celestialBodyToBeSelected != -1) {
+        selectedCelestialBody = celestialBodies[celestialBodyToBeSelected];
+    }
+    else {
+        selectedCelestialBody = null;
+    }
 });
 
 window.onresize = () => {

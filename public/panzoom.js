@@ -83,7 +83,7 @@ class PanZoom {
     set ScreenDimensions(value) {
         this.OffsetX -= (value.width - this.screenDimensions.width) / this.Scale / 2;
         this.OffsetY -= (value.height - this.screenDimensions.height) / this.Scale / 2;
-        
+
         this.screenDimensions = value;
 
         this.calculateMinZoom();
@@ -174,6 +174,33 @@ class PanZoom {
 
         this.OffsetX = - (this.screenDimensions.width / this.Scale) / 2;
         this.OffsetY = - (this.screenDimensions.height / this.Scale) / 2;
+    }
+
+    // ======================== || ANIMATION FUNCTIONS || ======================== //
+
+    requestFocusOn(worldX, worldY) {
+        this.OffsetX = worldX - this.screenDimensions.width / this.Scale / 2;
+        this.OffsetY = worldY - this.screenDimensions.height / this.Scale / 2;
+
+        this.RestrictOffset();
+    }
+
+    requestAnimationFrameTo(worldX, worldY, scale, amountOfFramesLeft) {
+        const worldXBeforeZoom = this.ScreenToWorldX(worldX - this.screenDimensions.width / 2 / scale);
+        const worldYBeforeZoom = this.ScreenToWorldY(worldY - this.screenDimensions.height / 2 / scale);
+
+        this.Scale += (scale - this.Scale) / amountOfFramesLeft;
+
+        const worldXAfterZoom = this.ScreenToWorldX(worldX - this.screenDimensions.width / 2 / this.Scale);
+        const worldYAfterZoom = this.ScreenToWorldY(worldY - this.screenDimensions.height / 2 / this.Scale);
+
+        const widthOffset = worldXBeforeZoom - worldXAfterZoom;
+        const heightOffset = worldYBeforeZoom - worldYAfterZoom;
+
+        this.OffsetX += ((worldX - this.screenDimensions.width / 2 / this.Scale) - this.OffsetX + widthOffset) / amountOfFramesLeft;
+        this.OffsetY += ((worldY - this.screenDimensions.height / 2 / this.Scale) - this.OffsetY + heightOffset) / amountOfFramesLeft;
+
+        this.RestrictOffset();
     }
 
     // ======================== || MOUSE FUNCTIONS || ======================== //
