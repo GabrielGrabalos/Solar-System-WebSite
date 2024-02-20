@@ -77,8 +77,14 @@ celestialBodies.push(moon);
 
 const amountOfCelestialBodies = celestialBodies.length;
 
+const starGen = new starGenerator(worldDimensions);
+starGen.generateStars(10000);
+
 function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    // Draw the stars:
+    starGen.drawStars(ctx, pz);
 
     let isAnyHovering = -1;
 

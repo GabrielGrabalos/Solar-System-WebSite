@@ -7,7 +7,7 @@ class CelestialBody {
 
         let orbit = args.orbit || null;
 
-        this.velocity = velocity * (orbit ? (orbit.clockwise ? 1 : -1) : 1);
+        this.velocity = velocity * (orbit?.clockwise ? 1 : -1);
 
         this.radius = args.radius || 0;
         this.color = args.color || "white";
