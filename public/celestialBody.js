@@ -64,6 +64,8 @@ class CelestialBody {
 
         const parent = this.orbit.parentCelestialBody;
 
+        if(ctx.fillStyle != "white") ctx.fillStyle = "white";
+
         ctx.beginPath();
 
         ctx.arc(
