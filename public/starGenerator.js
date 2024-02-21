@@ -4,7 +4,7 @@
 
 class StarGenerator {
     constructor(worldSize) {
-        this.stars = [];
+        this.stars = {};
         this.starCount = 0;
         this.worldSize = worldSize;
     }
@@ -50,12 +50,15 @@ class StarGenerator {
 
             const x = this.random(seed, startPoint.x, endPoint.x);
             const y = this.random(seed, startPoint.y, endPoint.y);
+
             const size = this.random(seed, 3, 6);
             const brightness = this.random(seed, 150, 255);
 
-            const star = { x, y, size, brightness };
+            const star = { size, brightness };
 
-            this.stars.push(star);
+            if (!this.stars[x]) this.stars[x] = {};
+
+            this.stars[x][y] = star;
         }
 
         this.starCount = amount;
@@ -64,22 +67,38 @@ class StarGenerator {
     // =============== || DRAWING || =============== //
 
     drawStars(ctx, pz) {
-        for (let i = 0; i < this.starCount; i++) {
-            const star = this.stars[i];
+        // Calculaters the world coordinates of the screen's edges:
+        const xStart = pz.ScreenToWorldX(0);
+        const xEnd = pz.ScreenToWorldX(pz.ScreenDimensions.width);
 
-            const flicker = (Math.random() < 0.3 ? 100 : 0) * Math.random(-1, 2); // Has a 30% chance to generate a flicker on the star.
-            const brightness = star.brightness + flicker;
+        const yStart = pz.ScreenToWorldY(0);
+        const yEnd = pz.ScreenToWorldY(pz.ScreenDimensions.height);
 
-            ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+        // Only draw the stars that are visible on the screen:
+        for (let x in this.stars) {
+            if (x < xStart || x > xEnd) continue;
 
-            const sizeWithZoom = star.size * pz.Scale;
+            const starsX = this.stars[x];
 
-            ctx.fillRect(
-                pz.WorldToScreenX(star.x),
-                pz.WorldToScreenY(star.y),
-                sizeWithZoom,
-                sizeWithZoom
-            );
+            for (let y in starsX) {
+                if (y < yStart || y > yEnd) continue;
+
+                const star = starsX[y];
+
+                const flicker = (Math.random() < 0.3 ? 100 : 0) * Math.random(-1, 2); // Has a 30% chance to generate a flicker on the star.
+                const brightness = star.brightness + flicker;
+
+                ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+
+                const sizeWithZoom = star.size * pz.Scale;
+
+                ctx.fillRect(
+                    pz.WorldToScreenX(x),
+                    pz.WorldToScreenY(y),
+                    sizeWithZoom,
+                    sizeWithZoom
+                );
+            }
         }
     }
 }
