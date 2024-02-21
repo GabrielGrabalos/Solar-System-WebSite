@@ -83,11 +83,11 @@ const amountOfCelestialBodies = celestialBodies.length;
 const starGen = new starGenerator(worldDimensions);
 starGen.generateStars(10000);
 
-updateStars();
 
 function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
+    
+    updateStars();
     ctx.drawImage(offscreenCanvas, 0, 0);
 
     let isAnyHovering = -1;
@@ -188,8 +188,6 @@ canvas.addEventListener('mousemove', (event) => {
     mouse.y = mouseY;
 
     pz.MouseMove(mouseX, mouseY);
-
-    if (pz.Drag) updateStars();
 })
 
 canvas.addEventListener('mouseup', () => {
@@ -202,8 +200,6 @@ canvas.addEventListener('wheel', (event) => {
     const { mouseX, mouseY } = getCursorPosition(event);
 
     pz.MouseWheel(mouseX, mouseY, event.deltaY);
-
-    updateStars();
 });
 
 canvas.addEventListener('click', () => {
