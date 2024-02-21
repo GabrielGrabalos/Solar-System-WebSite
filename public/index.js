@@ -83,11 +83,12 @@ const amountOfCelestialBodies = celestialBodies.length;
 const starGen = new starGenerator(worldDimensions);
 starGen.generateStars(10000);
 
-function draw() {
-    offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+updateStars();
 
-    // Draw the stars:
-    starGen.drawStars(offscreenCtx, pz);
+function draw() {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    ctx.drawImage(offscreenCanvas, 0, 0);
 
     let isAnyHovering = -1;
 
@@ -105,8 +106,8 @@ function draw() {
                 )
             );
 
-        celestialBody.drawOrbit(offscreenCtx, pz, isHovering);
-        celestialBody.draw(offscreenCtx, pz, isHovering);
+        celestialBody.drawOrbit(ctx, pz, isHovering);
+        celestialBody.draw(ctx, pz, isHovering);
 
         if (isHovering) isAnyHovering = i;
     }
@@ -117,9 +118,6 @@ function draw() {
         canvas.style.cursor = "default";
 
     celestialBodyToBeSelected = isAnyHovering;
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(offscreenCanvas, 0, 0);
 }
 
 let framesLeft = 60;
@@ -159,6 +157,11 @@ function deselectCelestialBody() {
     framesLeft = 60;
 }
 
+function updateStars() {
+    offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    starGen.drawStars(offscreenCtx, pz);
+}
+
 // Mouse functions:
 
 function getCursorPosition(event) {
@@ -185,6 +188,8 @@ canvas.addEventListener('mousemove', (event) => {
     mouse.y = mouseY;
 
     pz.MouseMove(mouseX, mouseY);
+
+    if (pz.Drag) updateStars();
 })
 
 canvas.addEventListener('mouseup', () => {
@@ -197,6 +202,8 @@ canvas.addEventListener('wheel', (event) => {
     const { mouseX, mouseY } = getCursorPosition(event);
 
     pz.MouseWheel(mouseX, mouseY, event.deltaY);
+
+    updateStars();
 });
 
 canvas.addEventListener('click', () => {
