@@ -257,3 +257,25 @@ class PanZoom {
         this.RestrictOffset();
     }
 }
+
+/**
+ * 
+ * Notes:
+ * 
+ *      - * Tick function *: 
+ *          Maybe create a tick function to update the panzoom.
+ *          This would allow the panzoom to be updated in the main loop,
+ *          making it easier to manage animations and other stuff.
+ * 
+ *      - * Animation class *:
+ *          Create and integrate an animation class to hold all the
+ *          necessary information to animate the panzoom appropriately.
+ *          This would be achievable by using the tick function.
+ * 
+ *      - * Parallax implementation *:
+ *          Allow for z axis support, so the panzoom can be used to
+ *          create parallax effects.
+ * 
+ *          The whole concept would have to be changed to acchieve something like this.
+ * 
+ **/

@@ -11,27 +11,15 @@ const worldDimensions = { width: 12800, height: 7200 };
 
 const pz = new PanZoom({ worldDimensions, screenDimensions: { width: canvasWidth, height: canvasHeight } });
 
-const sun = new Star(0, 0, 250, "#ffcc00");
 
 let mouse = { x: 0, y: 0 };
 
 let celestialBodyToBeSelected = -1;
 let selectedCelestialBody = null;
 
-// Function to create a planet object:
-function createPlanet(orbitalPeriod, radius, color, distanceToParent) {
-    return new Planet(
-        orbitalPeriod,
-        radius,
-        color,
-        {
-            parentCelestialBody: sun,
-            distance: distanceToParent / 2,
-            clockWise: false
-        },
-        Math.random() * Math.PI * 2
-    );
-}
+const sun = new Star(0, 0, 250, "#ffcc00");
+
+const system = new SolarSystem(sun);
 
 // Array containing planet data:
 const planetData = [
@@ -45,24 +33,9 @@ const planetData = [
     { orbitalPeriod: 1, radius: 24, color: "#073b4c", distanceToParent: 6250 }   // Neptune
 ];
 
-/*
-Corrected distanceToParent values:
-
-const planetData = [
-    { orbitalPeriod: 1, radius: 20, color: "#e09f3e", distanceToParent: 5790 }, // Mercury
-    { orbitalPeriod: 1, radius: 18, color: "#ca6702", distanceToParent: 10820 },  // Venus
-    { orbitalPeriod: 1, radius: 30, color: "#0a9396", distanceToParent: 14960 }, // Earth
-    { orbitalPeriod: 1, radius: 15, color: "#9b2226", distanceToParent: 22790 }, // Mars
-    { orbitalPeriod: 1, radius: 150, color: "#99582a", distanceToParent: 77860 },  // Jupiter
-    { orbitalPeriod: 1, radius: 150, color: "#fec89a", distanceToParent: 143350 }, // Saturn
-    { orbitalPeriod: 1, radius: 15, color: "#118ab2", distanceToParent: 287250 },  // Uranus
-    { orbitalPeriod: 1, radius: 24, color: "#073b4c", distanceToParent: 449510 }   // Neptune
-];
-*/
-
 // Create an array of planet objects:
 const celestialBodies = planetData.map(planet =>
-    createPlanet(planet.orbitalPeriod, planet.radius, planet.color, planet.distanceToParent)
+    system.createPlanet(planet.orbitalPeriod, planet.radius, planet.color, planet.distanceToParent)
 );
 
 // Add the sun to the array:
@@ -83,41 +56,46 @@ const amountOfCelestialBodies = celestialBodies.length;
 const starGen = new starGenerator(worldDimensions);
 starGen.generateStars(10000);
 
+// =============== || ANIMATION & DRAWING || =============== //
 
 function draw() {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas.
+
+    // Update and draw the stars:
     updateStars();
     ctx.drawImage(offscreenCanvas, 0, 0);
 
-    let isAnyHovering = -1;
+    let isAnyHovering = -1; // Variable to check if any celestial body is being hovered.
 
     // Draw the orbits:
     for (let i = 0; i < amountOfCelestialBodies; i++) {
         const celestialBody = celestialBodies[i];
 
-        // Check if the celestial body is being hovered or if the orbit is being hovered:
+        // Check if the celestial body is being hovered or if the orbit is being hovered.
+        // If there is already a hovering object, then don't check for hovering objects anymore:
         const isHovering =
             (
-                !isAnyHovering != -1 && // If there is already a hovering object, then don't check for hovering
+                !isAnyHovering != -1 &&
                 (
                     celestialBody.isHoveringOrbit(pz, mouse.x, mouse.y) ||
                     celestialBody.isHovering(pz, mouse.x, mouse.y)
                 )
             );
 
+        // Draw the orbit and the celestial body:
         celestialBody.drawOrbit(ctx, pz, isHovering);
         celestialBody.draw(ctx, pz, isHovering);
 
-        if (isHovering) isAnyHovering = i;
+        if (isHovering) isAnyHovering = i; // Set the isAnyHovering variable to the current index.
     }
 
+    // Update the cursor:
     if (isAnyHovering != -1)
         canvas.style.cursor = "pointer";
     else
         canvas.style.cursor = "default";
 
-    celestialBodyToBeSelected = isAnyHovering;
+    celestialBodyToBeSelected = isAnyHovering; // Set the celestial body to be selected to the current index.
 }
 
 let framesLeft = 60;
@@ -125,14 +103,26 @@ let framesLeft = 60;
 function animate() {
     // If a celestial body is selected, then animate to it:
     if (selectedCelestialBody) {
+
         // If there are frames left, then animate to the selected celestial body:
         if (framesLeft > 0) {
-            pz.requestAnimationFrameTo(selectedCelestialBody.x, selectedCelestialBody.y, 1, framesLeft);
+
+            pz.requestAnimationFrameTo(
+                selectedCelestialBody.x,
+                selectedCelestialBody.y,
+                1,
+                framesLeft
+            );
+
             framesLeft--;
         }
+
         // If there are no frames left, then focus on the selected celestial body:
         else {
-            pz.requestFocusOn(selectedCelestialBody.x, selectedCelestialBody.y);
+            pz.requestFocusOn(
+                selectedCelestialBody.x,
+                selectedCelestialBody.y
+            );
         }
     }
 
@@ -146,8 +136,16 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+// Start the animation:
 pz.CenterOffset();
 animate();
+
+// ================== || HELPFUL FUNCTIONS || ================== //
+
+function updateStars() {
+    offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    starGen.drawStars(offscreenCtx, pz);
+}
 
 // Function to deselect the selected celestial body:
 function deselectCelestialBody() {
@@ -157,15 +155,13 @@ function deselectCelestialBody() {
     framesLeft = 60;
 }
 
-function updateStars() {
-    offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-    starGen.drawStars(offscreenCtx, pz);
-}
+// =============== || EVENT LISTENERS || =============== //
 
 // Mouse functions:
 
 function getCursorPosition(event) {
     const rect = canvas.getBoundingClientRect();
+
     return {
         mouseX: event.clientX - rect.left,
         mouseY: event.clientY - rect.top,
@@ -213,6 +209,7 @@ canvas.addEventListener('click', () => {
     }
 });
 
+// Resize the canvas when the window is resized:
 window.onresize = () => {
     canvasWidth = canvas.width = offscreenCanvas.width = window.innerWidth;
     canvasHeight = canvas.height = offscreenCanvas.height = window.innerHeight;
