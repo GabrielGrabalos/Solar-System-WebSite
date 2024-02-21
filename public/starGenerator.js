@@ -2,7 +2,7 @@
 // A class to create a collection of stars
 // (white points on a canvas, to this usage case):
 
-class starGenerator {
+class StarGenerator {
     constructor(worldSize) {
         this.stars = [];
         this.starCount = 0;

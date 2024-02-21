@@ -53,7 +53,7 @@ celestialBodies.push(moon);
 
 const amountOfCelestialBodies = celestialBodies.length;
 
-const starGen = new starGenerator(worldDimensions);
+const starGen = new StarGenerator(worldDimensions);
 starGen.generateStars(10000);
 
 // =============== || ANIMATION & DRAWING || =============== //
