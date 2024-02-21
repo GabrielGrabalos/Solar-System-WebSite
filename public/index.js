@@ -1,8 +1,11 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext('2d');
 
-let canvasWidth = canvas.width = window.innerWidth;
-let canvasHeight = canvas.height = window.innerHeight;
+let offscreenCanvas = document.createElement('canvas');
+let offscreenCtx = offscreenCanvas.getContext('2d');
+
+let canvasWidth = canvas.width = offscreenCanvas.width = window.innerWidth;
+let canvasHeight = canvas.height = offscreenCanvas.height = window.innerHeight;
 
 const worldDimensions = { width: 12800, height: 7200 };
 
@@ -81,10 +84,10 @@ const starGen = new starGenerator(worldDimensions);
 starGen.generateStars(10000);
 
 function draw() {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // Draw the stars:
-    starGen.drawStars(ctx, pz);
+    starGen.drawStars(offscreenCtx, pz);
 
     let isAnyHovering = -1;
 
@@ -102,8 +105,8 @@ function draw() {
                 )
             );
 
-        celestialBody.drawOrbit(ctx, pz, isHovering);
-        celestialBody.draw(ctx, pz, isHovering);
+        celestialBody.drawOrbit(offscreenCtx, pz, isHovering);
+        celestialBody.draw(offscreenCtx, pz, isHovering);
 
         if (isHovering) isAnyHovering = i;
     }
@@ -114,6 +117,9 @@ function draw() {
         canvas.style.cursor = "default";
 
     celestialBodyToBeSelected = isAnyHovering;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(offscreenCanvas, 0, 0);
 }
 
 let framesLeft = 60;
@@ -205,8 +211,8 @@ canvas.addEventListener('click', () => {
 });
 
 window.onresize = () => {
-    canvasWidth = canvas.width = window.innerWidth;
-    canvasHeight = canvas.height = window.innerHeight;
+    canvasWidth = canvas.width = offscreenCanvas.width = window.innerWidth;
+    canvasHeight = canvas.height = offscreenCanvas.height = window.innerHeight;
 
-    pz.ScreenDimensions = { width: canvas.width, height: canvas.height };
+    pz.ScreenDimensions = { width: canvasWidth, height: canvasHeight };
 }
