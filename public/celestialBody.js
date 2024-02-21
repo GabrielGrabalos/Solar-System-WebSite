@@ -64,7 +64,8 @@ class CelestialBody {
 
         const parent = this.orbit.parentCelestialBody;
 
-        if(ctx.fillStyle != "white") ctx.fillStyle = "white";
+        ctx.lineWidth = 2 * pz.Scale * ((isSelected) ? 2 : 1);
+        ctx.strokeStyle = "white";
 
         ctx.beginPath();
 
@@ -74,9 +75,6 @@ class CelestialBody {
             this.orbit.distance * pz.Scale,
             0, Math.PI * 2 + 1, false
         );
-
-        ctx.lineWidth = 4 * pz.Scale * (isSelected) ? 2 : 1;
-        ctx.strokeStyle = "white";
 
         ctx.stroke();
     }

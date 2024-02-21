@@ -50,11 +50,12 @@ class starGenerator {
 
             const x = this.random(seed, startPoint.x, endPoint.x);
             const y = this.random(seed, startPoint.y, endPoint.y);
+            const z = this.random(seed, 1.5, 3);
 
             const size = this.random(seed, 3, 6);
             const brightness = this.random(seed, 150, 255);
 
-            const star = { size, brightness };
+            const star = { z, size, brightness };
 
             if (!this.stars[x]) this.stars[x] = {};
 
