@@ -1,4 +1,4 @@
-class Planet extends CelestialBody {
+class Satellite extends CelestialBody {
     constructor(props) {
         super(props);
     }
