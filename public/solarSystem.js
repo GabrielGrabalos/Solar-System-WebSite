@@ -49,7 +49,16 @@ class SolarSystem {
                 if (!parentBody) {
                     throw new Error(`Parent with ID ${parent} not found for celestial body with ID ${id}`);
                 }
+
+                let orbit = {
+                    parentCelestialBody: parentBody,
+                    distance: props.distanceToParent,
+                    clockwise: false
+                };
+
+                props.orbit = orbit;
             }
+
 
             const celestialBody = this.createCelestialBody(type, props, parentBody);
             this.celestialBodies.push(celestialBody);

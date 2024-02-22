@@ -7,8 +7,6 @@ class CelestialBody {
 
         let orbit = args.orbit || null;
 
-        if(orbit) orbit.parentCelestialBody = orbit?.parentCelestialBody || null;
-
         this.velocity = velocity * (orbit?.clockwise ? 1 : -1);
 
         this.radius = args.radius || 0;

@@ -22,7 +22,7 @@ const sun = new Star(0, 0, 250, "#ffcc00");
 
 // Array containing planet data:
 const data = [
-    { id: 1, type: 'star', radius: 250, color: "#ffcc00" },                                                        // Sun
+    { id: 1, type: 'star', radius: 250, color: "#ffcc00" },                                                // Sun
     { id: 2, type: 'planet', orbit: 1, radius: 20,  color: "#e09f3e", distanceToParent: 1000, parent: 1 }, // Mercury
     { id: 3, type: 'planet', orbit: 1, radius: 18,  color: "#ca6702", distanceToParent: 1750, parent: 1 }, // Venus
     { id: 4, type: 'planet', orbit: 1, radius: 30,  color: "#0a9396", distanceToParent: 2500, parent: 1 }, // Earth
@@ -30,29 +30,13 @@ const data = [
     { id: 6, type: 'planet', orbit: 1, radius: 150, color: "#99582a", distanceToParent: 4000, parent: 1 }, // Jupiter
     { id: 7, type: 'planet', orbit: 1, radius: 150, color: "#fec89a", distanceToParent: 4750, parent: 1 }, // Saturn
     { id: 8, type: 'planet', orbit: 1, radius: 15,  color: "#118ab2", distanceToParent: 5500, parent: 1 }, // Uranus
-    { id: 9, type: 'planet', orbit: 1, radius: 24,  color: "#073b4c", distanceToParent: 6250, parent: 1 }  // Neptune
+    { id: 9, type: 'planet', orbit: 1, radius: 24,  color: "#073b4c", distanceToParent: 6250, parent: 1 }, // Neptune
+
+    { id: 10, type: 'moon', orbit: 4, radius: 5, color: "#d3d3d3", distanceToParent: 100, parent: 4 } // Moon
 ];
 const system = new SolarSystem(data);
 
-// Create an array of planet objects:
-const celestialBodies = planetData.map(planet =>
-    system.createPlanet(planet.orbitalPeriod, planet.radius, planet.color, planet.distanceToParent)
-);
-
-// Add the sun to the array:
-celestialBodies.unshift(sun);
-
-const moon = new Satellite(
-    2, 5, "#d3d3d3",
-    {
-        parentCelestialBody: celestialBodies[3], // Earth
-        distance: 100,
-    }
-);
-
-celestialBodies.push(moon);
-
-const amountOfCelestialBodies = celestialBodies.length;
+const amountOfCelestialBodies = system.CelestialBodies.length;
 
 const starGen = new starGenerator(worldDimensions);
 starGen.generateStars(10000);
@@ -67,6 +51,8 @@ function draw() {
     ctx.drawImage(offscreenCanvas, 0, 0);
 
     let isAnyHovering = -1; // Variable to check if any celestial body is being hovered.
+
+    const celestialBodies = system.CelestialBodies;
 
     // Draw the orbits:
     for (let i = 0; i < amountOfCelestialBodies; i++) {
@@ -128,6 +114,8 @@ function animate() {
     }
 
     draw();
+
+    const celestialBodies = system.CelestialBodies;
 
     // Updates the planets:
     for (let i = 0; i < amountOfCelestialBodies; i++) {
@@ -203,7 +191,7 @@ canvas.addEventListener('click', () => {
     if (!pz.Click) return;
 
     if (celestialBodyToBeSelected != -1) {
-        selectedCelestialBody = celestialBodies[celestialBodyToBeSelected];
+        selectedCelestialBody = system.CelestialBodies[celestialBodyToBeSelected];
     }
     else {
         selectedCelestialBody = null;
