@@ -1,9 +1,9 @@
 class CelestialBody {
 
     constructor(args) {
-        this.angle = args.angle || 0;
+        this.angle = args.angle || Math.random() * Math.PI * 2;
 
-        let velocity = args.velocity || 0;
+        let velocity = args.velocity || 1;
 
         let orbit = args.orbit || null;
 
@@ -32,6 +32,64 @@ class CelestialBody {
 
         this.x = args.x || x;
         this.y = args.y || y;
+    }
+
+    // ============================== || GETTERS & SETTERS || ============================== //
+
+    get Angle() {
+        return this.angle;
+    }
+
+    set Angle(value) {
+        this.angle = value;
+    }
+
+    get Velocity() {
+        return this.velocity;
+    }
+
+    set Velocity(value) {
+        this.velocity = value;
+    }
+
+    get Radius() {
+        return this.radius;
+    }
+
+    set Radius(value) {
+        this.radius = value;
+    }
+
+    get Color() {
+        return this.color;
+    }
+
+    set Color(value) {
+        this.color = value;
+    }
+
+    get Orbit() {
+        return this.orbit;
+    }
+
+    set Orbit(value) {
+        this.orbit = value;
+    }
+
+    get X() {
+        return this.x;
+    }
+
+    set X(value) {
+        this.x = value;
+    }
+
+    get Y() {
+        return this.y;
+    }
+
+    set Y(value) {
+        this.y = value;
     }
 
     // ============================== || DRAWING FUNCTIONS || ============================== //
@@ -64,6 +122,9 @@ class CelestialBody {
 
         const parent = this.orbit.parentCelestialBody;
 
+        ctx.lineWidth = 2 * pz.Scale * ((isSelected) ? 2 : 1);
+        ctx.strokeStyle = "white";
+
         ctx.beginPath();
 
         ctx.arc(
@@ -72,9 +133,6 @@ class CelestialBody {
             this.orbit.distance * pz.Scale,
             0, Math.PI * 2 + 1, false
         );
-
-        ctx.lineWidth = 4 * pz.Scale * (isSelected) ? 2 : 1;
-        ctx.strokeStyle = "white";
 
         ctx.stroke();
     }

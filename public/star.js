@@ -1,11 +1,6 @@
 class Star extends CelestialBody {
-    constructor(x, y, radius, color) {
-        super({
-            x,
-            y,
-            radius,
-            color
-        });
+    constructor(props) {
+        super(props);
     }
 
     draw(ctx, pz, isSelected) {
