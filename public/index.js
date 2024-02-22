@@ -7,7 +7,7 @@ let offscreenCtx = offscreenCanvas.getContext('2d');
 let canvasWidth = canvas.width = offscreenCanvas.width = window.innerWidth;
 let canvasHeight = canvas.height = offscreenCanvas.height = window.innerHeight;
 
-const worldDimensions = { width: 12800, height: 7200 };
+const worldDimensions = { width: 15000, height: 15000 };
 
 const pz = new PanZoom({ worldDimensions, screenDimensions: { width: canvasWidth, height: canvasHeight } });
 
@@ -32,7 +32,8 @@ const data = [
     { id: 8, type: 'planet', orbit: 1, radius: 15,  color: "#118ab2", distanceToParent: 5500, parent: 1 }, // Uranus
     { id: 9, type: 'planet', orbit: 1, radius: 24,  color: "#073b4c", distanceToParent: 6250, parent: 1 }, // Neptune
 
-    { id: 10, type: 'moon', orbit: 4, radius: 5, color: "#d3d3d3", distanceToParent: 100, parent: 4 } // Moon
+    { id: 10, type: 'moon', orbit: 4, radius: 5, color: "#d3d3d3", distanceToParent: 100, parent: 4 }, // Moon
+    { id: 10, type: 'moon', orbit: 4, radius: 5, color: "#d3d3d3", distanceToParent: 30, parent: 10 } // Moon
 ];
 const system = new SolarSystem(data);
 

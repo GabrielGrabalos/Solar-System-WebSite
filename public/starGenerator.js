@@ -77,12 +77,12 @@ class StarGenerator {
 
         // Only draw the stars that are visible on the screen:
         for (let x in this.stars) {
-            //if (x < xStart || x > xEnd) continue;
+            if (x < xStart || x > xEnd) continue;
 
             const starsX = this.stars[x];
 
             for (let y in starsX) {
-                //if (y < yStart || y > yEnd) continue;
+                if (y < yStart || y > yEnd) continue;
 
                 const star = starsX[y];
 
