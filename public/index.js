@@ -17,8 +17,6 @@ let mouse = { x: 0, y: 0 };
 let celestialBodyToBeSelected = -1;
 let selectedCelestialBody = null;
 
-const sun = new Star(0, 0, 250, "#ffcc00");
-
 
 // Array containing planet data:
 const data = [
