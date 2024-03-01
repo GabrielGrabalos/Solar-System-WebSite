@@ -60,3 +60,7 @@ This project is licensed under the [MIT License](LICENSE) 📄.  Feel free to us
 ## 💕 Thanks!
 
 Thanks for the interest! I hope to see you exploring a lot of our solar system!
+
+# 🫵 Head up!
+
+It may not seem like it, but I'm still currently working on this project. I'm finishing my MongoDB Atlas configuration and soon will return to our usual commits.
