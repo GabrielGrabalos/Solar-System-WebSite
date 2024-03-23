@@ -74,4 +74,4 @@ For now, my TODOs are:
 - Better animation and navigation systems;
 - Cleaner code.
 
-  I really hope to see you following this journey with me! 🌠
+I really hope to see you following this journey with me! 🌠
