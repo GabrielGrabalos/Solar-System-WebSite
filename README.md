@@ -8,7 +8,7 @@ This project holds a special place in my heart as it marks my first-ever full-st
 
 # 🌟 The Solar System Website 🚀
 
-Welcome to The Solar System Website ( _I still have to figure out a better name_ )!  🌌 Embark on an exciting journey through space and learn all about our fascinating solar system!  🪐 Get ready to blast off into a universe of fun and discovery! 🚀💫
+Welcome to The Solar System Website ( _I still have to figure out a better name_ )!  🌌 Embark on an exciting journey through space and learn all about our fascinating solar system!  🪐 Get ready to blast off into a universe of fun and discovery! 🚀💫 [Try it out right now!](https://solartorio.web.app)
 
 ## 🎉 Features
 
