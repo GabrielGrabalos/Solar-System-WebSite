@@ -61,6 +61,17 @@ This project is licensed under the [MIT License](LICENSE) 📄.  Feel free to us
 
 Thanks for the interest! I hope to see you exploring a lot of our solar system!
 
-# 🫵 Head up!
+# 🫵 Heads up!
 
-It may not seem like it, but I'm still currently working on this project. I'm finishing my MongoDB Atlas configuration and soon will return to our usual commits.
+It may not seem like it, but I'm still currently working on this project. I'm finishing my Firestore configuration and soon will return to our usual commits.
+
+For now, my TODOs are:
+
+- Retrieving and showing the planets information;
+- Adding more details related to the celestial bodies (rings, moons, texture, more celestial bodies present on our Solar System, etc.);
+- Navigation tutorial;
+- Settings tab for user experience;
+- Better animation and navigation systems;
+- Cleaner code.
+
+  I really hope to see you following this journey with me! 🌠
